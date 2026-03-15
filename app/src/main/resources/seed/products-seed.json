@@ -1,0 +1,251 @@
+[
+  {
+    "folderName": "1",
+    "title": "Базова чорна футболка з гранж-акцентом",
+    "description": "Додай характеру у свій повсякденний образ! Масивний червоний принт у стилі гранж точно приверне увагу та виділить тебе з натовпу.",
+    "basePrice": 1000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-1-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-1-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-1-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-1-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "2",
+    "title": "Металева бензинова запальничка «Інферно»",
+    "description": "Вона повернулась! Металева бензинова запальничка з гравіюванням до треку «Інферно» знову в наявності. Готичний шрифт, танцюючі скелети та класичний надійний корпус — ідеальний аксесуар, який додасть стилю. Серія лімітована. Характеристики: висота 5.7 см, ширина 3.6 см, товщина 1.2 см, вага 50 г.",
+    "basePrice": 700,
+    "attributes": [],
+    "variants": [
+      { "sku": "PROD-2-OS", "attributes": {}, "priceModifier": 0, "stock": 30 }
+    ]
+  },
+  {
+    "folderName": "3",
+    "title": "Білі високі шкарпетки з фірмовим лого",
+    "description": "Вони повернулись! Білі високі шкарпетки з фірмовим лого знову в наявності. Ідеальна база на кожен день: зручні, стильні та чудово тримають форму. Склад: 95% бавовна, 5% еластан.",
+    "basePrice": 150,
+    "attributes": [{ "type": "Розмір", "values": ["35-38", "39-42", "43-46"] }],
+    "variants": [
+      { "sku": "PROD-3-35-38", "attributes": { "Розмір": "35-38" }, "priceModifier": 0, "stock": 100 },
+      { "sku": "PROD-3-39-42", "attributes": { "Розмір": "39-42" }, "priceModifier": 0, "stock": 100 },
+      { "sku": "PROD-3-43-46", "attributes": { "Розмір": "43-46" }, "priceModifier": 0, "stock": 100 },
+      { "sku": "PROD-3-35-38-3PK", "attributes": { "Розмір": "35-38", "Набір": "3 пари" }, "priceModifier": 250, "stock": 30 },
+      { "sku": "PROD-3-39-42-3PK", "attributes": { "Розмір": "39-42", "Набір": "3 пари" }, "priceModifier": 250, "stock": 30 },
+      { "sku": "PROD-3-43-46-3PK", "attributes": { "Розмір": "43-46", "Набір": "3 пари" }, "priceModifier": 250, "stock": 30 }
+    ]
+  },
+  {
+    "folderName": "4",
+    "title": "Чорна оверсайз футболка polamav з принтом",
+    "description": "Базова чорна футболка вільного крою з великим акцентним принтом на спині. Графіка з диско-кулею, полум'ям та фірмовим написом. Зручна посадка, яка не сковує рухів, чудово підійде для створення повсякденних стритстайл образів. Крій: Oversize.",
+    "basePrice": 1200,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL"] }],
+    "variants": [
+      { "sku": "PROD-4-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-4-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-4-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "5",
+    "title": "Чорна оверсайз футболка polamav з принтом (v2)",
+    "description": "Базова чорна футболка вільного крою з великим акцентним принтом на спині. Графіка з диско-кулею, полум'ям та фірмовим написом. Зручна посадка, яка не сковує рухів, чудово підійде для створення повсякденних стритстайл образів. Крій: Oversize.",
+    "basePrice": 1200,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL"] }],
+    "variants": [
+      { "sku": "PROD-5-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-5-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-5-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "6",
+    "title": "Лімітована футболка polamav x batcatshop «Парадокс»",
+    "description": "Ексклюзивна чорна футболка вільного крою зі складним графічним принтом. Випущена обмеженим тиражем спеціально на підтримку музичного синглу. Щільна тканина, якісний друк та впізнаваний стиль бренду.",
+    "basePrice": 2000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL"] }],
+    "variants": [
+      { "sku": "PROD-6-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-6-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-6-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 30 }
+    ]
+  },
+  {
+    "folderName": "7",
+    "title": "Теплий худі polamav з принтом (Рожевий)",
+    "description": "Базовий худі вільного крою у яскравому кольорі фуксії. На грудях розташований великий контрастний принт. Модель має глибокий капюшон та класичну кишеню-кенгуру. Ідеальний варіант для прохолодної погоди та створення акцентних стритстайл образів.",
+    "basePrice": 2000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL"] }],
+    "variants": [
+      { "sku": "PROD-7-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-7-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-7-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 30 }
+    ]
+  },
+  {
+    "folderName": "8",
+    "title": "Базовий світлий лонгслів з принтом",
+    "description": "Базовий світлий лонгслів вільного крою з великим графічним принтом на грудях (глобус із полум'ям та логотипом бренду). Виготовлений з якісної тканини, що забезпечує комфорт протягом усього дня. Еластичні манжети на рукавах для зручності.",
+    "basePrice": 1000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-8-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-8-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-8-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-8-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "9",
+    "title": "Gonya ексклюзивний сюрприз бокс",
+    "description": "Ексклюзивний сюрприз бокс від Gonya. Унікальний набір мерчу, вміст якого залишається таємницею до моменту відкриття.",
+    "basePrice": 2000,
+    "attributes": [],
+    "variants": [
+      { "sku": "PROD-9-OS", "attributes": {}, "priceModifier": 0, "stock": 20 }
+    ]
+  },
+  {
+    "folderName": "10",
+    "title": "Чорний худі «Африка Рекордс» леопард",
+    "description": "Стань частиною прайду! Розривний чорний худак від «Африки Рекордс». На спині — великий логотип в агресивному леопардовому стилі, який точно збере всі погляди. Максимальний комфорт, теплий капюшон і дизайн із характером.",
+    "basePrice": 1700,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-10-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 40 },
+      { "sku": "PROD-10-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 40 },
+      { "sku": "PROD-10-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 40 },
+      { "sku": "PROD-10-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 40 }
+    ]
+  },
+  {
+    "folderName": "11",
+    "title": "Футболка «Палаючий Гоня»",
+    "description": "Футболка «Палаючий Гоня» доступна для замовлення! Стильна чорна база з контрастним вогняним логотипом. Максимально зручна посадка та приємна до тіла тканина.",
+    "basePrice": 1000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL"] }],
+    "variants": [
+      { "sku": "PROD-11-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-11-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-11-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "12",
+    "title": "Бежева футболка з написом",
+    "description": "Футболка, яка говорить сама за себе. Стильна бежева база з лаконічним, але дуже точним написом. Зручний вільний крій та мінімалізм на кожен день.",
+    "basePrice": 1000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-12-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-12-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-12-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-12-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "13",
+    "title": "Базова футболка з текстовим принтом",
+    "description": "Класична базова футболка прямого крою з оригінальним текстовим принтом на грудях. Виготовлена з приємної до тіла тканини, яка не втрачає форму після прання. Універсальний варіант для повсякденних образів.",
+    "basePrice": 1000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-13-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-13-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-13-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-13-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "14",
+    "title": "Запальничка",
+    "description": "Стильна металева запальничка з фірмовим дизайном. Надійний корпус та класичний вигляд.",
+    "basePrice": 750,
+    "attributes": [],
+    "variants": [
+      { "sku": "PROD-14-OS", "attributes": {}, "priceModifier": 0, "stock": 30 }
+    ]
+  },
+  {
+    "folderName": "15",
+    "title": "Чорна футболка «Людина людині вовк»",
+    "description": "Стильна, похмура, концептуальна. Ідеальна база з акцентним синім принтом, яка легко впишеться у твій повсякденний стритстайл гардероб.",
+    "basePrice": 1000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-15-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-15-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-15-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-15-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "17",
+    "title": "Базовий білий худі з графікою",
+    "description": "Базовий білий худак із зухвалою графікою на спині. Максимальний комфорт, глибокий капюшон та ідеальний чорно-білий контраст.",
+    "basePrice": 2000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-17-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-17-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-17-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-17-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 30 }
+    ]
+  },
+  {
+    "folderName": "18",
+    "title": "Мертвий Півень x batcat футболка",
+    "description": "Шматочок історії українського року! Ексклюзивний дроп Мертвий Півень x batcat. Чорна оверсайз база з яскравим авторським принтом кажана-гітариста. Зроблена з надщільної бавовни, що витримає будь-який двіж та концерти.",
+    "basePrice": 1000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-18-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-18-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-18-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 50 },
+      { "sku": "PROD-18-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 50 }
+    ]
+  },
+  {
+    "folderName": "19",
+    "title": "Худі ZWYNTAR «Мертві Голоси»",
+    "description": "Твій квиток у світ дарк-кантрі. Ексклюзивний худі з туру «Мертві Голоси» від гурту ZWYNTAR. Базова чорна основа та потужний тематичний принт спереду.",
+    "basePrice": 2000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-19-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-19-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-19-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-19-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 30 }
+    ]
+  },
+  {
+    "folderName": "20",
+    "title": "Худі ZWYNTAR «Мертві Голоси» (v2)",
+    "description": "Твій квиток у світ дарк-кантрі. Ексклюзивний худі з туру «Мертві Голоси» від гурту ZWYNTAR. Базова чорна основа та потужний тематичний принт спереду.",
+    "basePrice": 2000,
+    "attributes": [{ "type": "Розмір", "values": ["M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-20-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-20-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-20-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-20-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 30 }
+    ]
+  },
+  {
+    "folderName": "21",
+    "title": "Худі Паліндром «Я залишаюсь тут»",
+    "description": "Офіційний мерч Паліндрома вже в наявності! Чорний теплий худі з концептуальним принтом «Я залишаюсь тут» на спині. Максимальний комфорт, якісна тканина та правильний меседж на кожен день.",
+    "basePrice": 2000,
+    "attributes": [{ "type": "Розмір", "values": ["S", "M", "L", "XL", "XXL"] }],
+    "variants": [
+      { "sku": "PROD-21-S", "attributes": { "Розмір": "S" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-21-M", "attributes": { "Розмір": "M" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-21-L", "attributes": { "Розмір": "L" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-21-XL", "attributes": { "Розмір": "XL" }, "priceModifier": 0, "stock": 30 },
+      { "sku": "PROD-21-XXL", "attributes": { "Розмір": "XXL" }, "priceModifier": 0, "stock": 30 }
+    ]
+  }
+]
