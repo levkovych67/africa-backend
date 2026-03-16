@@ -32,6 +32,7 @@ public class Order {
     @Indexed
     private OrderStatus status;
     private ShippingDetails shippingDetails;
+    private String comment;
 
     @Indexed
     private Instant createdAt;

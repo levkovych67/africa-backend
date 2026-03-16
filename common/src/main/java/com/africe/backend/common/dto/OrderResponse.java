@@ -24,6 +24,7 @@ public class OrderResponse {
     private BigDecimal totalAmount;
     private String status;
     private ShippingDetailsResponse shippingDetails;
+    private String comment;
     private Instant createdAt;
     private Instant updatedAt;
 }

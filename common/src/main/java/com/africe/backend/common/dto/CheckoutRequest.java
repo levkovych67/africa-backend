@@ -37,4 +37,6 @@ public class CheckoutRequest {
     @NotNull
     @Valid
     private ShippingDetailsRequest shippingDetails;
+
+    private String comment;
 }

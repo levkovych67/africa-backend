@@ -6,11 +6,13 @@ import com.africe.backend.common.dto.ProductAttributeDto;
 import com.africe.backend.common.dto.ProductResponse;
 import com.africe.backend.common.dto.ProductVariantDto;
 import com.africe.backend.common.dto.UpdateProductRequest;
+import com.africe.backend.common.model.Artist;
 import com.africe.backend.common.model.Product;
 import com.africe.backend.common.model.ProductAttribute;
 import com.africe.backend.common.model.ProductStatus;
 import com.africe.backend.common.model.ProductVariant;
 import com.africe.backend.common.util.SlugUtils;
+import com.africe.backend.product.repository.ArtistRepository;
 import com.africe.backend.product.repository.ProductRepository;
 import com.africe.backend.product.service.ProductService;
 import jakarta.validation.Valid;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
@@ -40,11 +43,24 @@ public class AdminProductController {
 
     private final ProductRepository productRepository;
     private final ProductService productService;
+    private final ArtistRepository artistRepository;
 
     @GetMapping
-    public Page<ProductResponse> listAll(Pageable pageable) {
-        return productRepository.findAll(pageable)
-                .map(this::toProductResponse);
+    public Page<ProductResponse> listAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) ProductStatus status,
+            Pageable pageable) {
+        Page<Product> products;
+        if (status != null && search != null && !search.isBlank()) {
+            products = productRepository.findByStatusAndTitleContainingIgnoreCase(status, search, pageable);
+        } else if (status != null) {
+            products = productRepository.findByStatus(status, pageable);
+        } else if (search != null && !search.isBlank()) {
+            products = productRepository.findByTitleContainingIgnoreCase(search, pageable);
+        } else {
+            products = productRepository.findAll(pageable);
+        }
+        return products.map(this::toProductResponse);
     }
 
     @PostMapping
@@ -100,6 +116,9 @@ public class AdminProductController {
         if (request.getImages() != null) {
             product.setImages(request.getImages());
         }
+        if (request.getStatus() != null) {
+            product.setStatus(request.getStatus());
+        }
 
         product.setUpdatedAt(Instant.now());
         product = productService.save(product);
@@ -117,6 +136,16 @@ public class AdminProductController {
     }
 
     private ProductResponse toProductResponse(Product product) {
+        String artistName = null;
+        String artistSlug = null;
+        if (product.getArtistId() != null) {
+            Artist artist = artistRepository.findById(product.getArtistId()).orElse(null);
+            if (artist != null) {
+                artistName = artist.getName();
+                artistSlug = artist.getSlug();
+            }
+        }
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .slug(product.getSlug())
@@ -126,6 +155,9 @@ public class AdminProductController {
                 .attributes(mapAttributesToDtos(product.getAttributes()))
                 .variants(mapVariantsToDtos(product.getVariants()))
                 .images(product.getImages())
+                .artistId(product.getArtistId())
+                .artistName(artistName)
+                .artistSlug(artistSlug)
                 .status(product.getStatus() != null ? product.getStatus().name() : null)
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())

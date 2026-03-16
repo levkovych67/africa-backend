@@ -13,14 +13,14 @@ import lombok.NoArgsConstructor;
 public class ShippingDetailsRequest {
 
     @NotBlank
-    private String address;
-
-    @NotBlank
     private String city;
 
     @NotBlank
-    private String postalCode;
+    private String cityRef;
 
     @NotBlank
-    private String country;
+    private String warehouseRef;
+
+    @NotBlank
+    private String warehouseDescription;
 }

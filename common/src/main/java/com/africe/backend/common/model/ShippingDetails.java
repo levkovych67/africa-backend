@@ -15,6 +15,9 @@ public class ShippingDetails {
     private String city;
     private String postalCode;
     private String country;
+    private String cityRef;
+    private String warehouseRef;
+    private String warehouseDescription;
     private String trackingNumber;
     private String carrier;
 }

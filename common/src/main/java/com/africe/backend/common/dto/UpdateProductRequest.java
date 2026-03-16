@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.africe.backend.common.model.ProductStatus;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -27,4 +29,6 @@ public class UpdateProductRequest {
     private String artistId;
 
     private List<String> images;
+
+    private ProductStatus status;
 }

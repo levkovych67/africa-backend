@@ -72,6 +72,11 @@ management:
     health:
       show-details: when-authorized
 
+# Nova Poshta
+nova-poshta:
+  api-key: 2d5a7977e2de3a01eff4f2ea6d0ba4fd
+  base-url: https://api.novaposhta.ua/v2.0/json/
+
 # Product Seed
 seed:
   enabled: ${SEED_ENABLED:true}

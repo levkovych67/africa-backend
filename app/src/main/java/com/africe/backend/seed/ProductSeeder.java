@@ -1,5 +1,6 @@
 package com.africe.backend.seed;
 
+import com.africe.backend.common.model.Artist;
 import com.africe.backend.common.model.Product;
 import com.africe.backend.common.model.ProductAttribute;
 import com.africe.backend.common.model.ProductStatus;
@@ -13,8 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -33,6 +37,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component
+@Order(2)
 @RequiredArgsConstructor
 public class ProductSeeder implements ApplicationRunner {
 
@@ -120,6 +125,19 @@ public class ProductSeeder implements ApplicationRunner {
             // Generate slug
             String slug = SlugUtils.toSlug(title) + "-" + folderName;
 
+            // Resolve artist
+            String artistId = null;
+            if (seed.has("artist")) {
+                String artistName = seed.get("artist").asText();
+                Artist artist = mongoTemplate.findOne(
+                        Query.query(Criteria.where("name").is(artistName)), Artist.class, "artists");
+                if (artist != null) {
+                    artistId = artist.getId();
+                } else {
+                    log.warn("Artist not found: {}", artistName);
+                }
+            }
+
             Product product = Product.builder()
                     .id(UUID.randomUUID().toString())
                     .slug(slug)
@@ -129,6 +147,7 @@ public class ProductSeeder implements ApplicationRunner {
                     .attributes(attributes)
                     .variants(variants)
                     .images(imageUrls)
+                    .artistId(artistId)
                     .status(ProductStatus.ACTIVE)
                     .createdAt(Instant.now())
                     .updatedAt(Instant.now())

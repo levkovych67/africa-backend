@@ -100,49 +100,36 @@ Returns paginated list of **active** products only.
   "content": [
     {
       "id": "6650a1b2c3d4e5f6a7b8c9d0",
-      "slug": "africa-tour-tshirt",
-      "title": "Africa Tour T-Shirt",
-      "description": "Limited edition tour merch",
-      "basePrice": 29.99,
+      "slug": "bazova-chorna-futbolka-z-hranzh-aktsentom-1",
+      "title": "Базова чорна футболка з гранж-акцентом",
+      "description": "Додай характеру у свій повсякденний образ!",
+      "basePrice": 1000,
       "attributes": [
         {
-          "type": "Size",
-          "values": ["S", "M", "L", "XL"]
-        },
-        {
-          "type": "Color",
-          "values": ["Black", "White"]
+          "type": "Розмір",
+          "values": ["M", "L", "XL", "XXL"]
         }
       ],
       "variants": [
         {
-          "sku": "TSHIRT-BLK-S",
-          "attributes": {
-            "Size": "S",
-            "Color": "Black"
-          },
+          "sku": "PROD-1-M",
+          "attributes": { "Розмір": "M" },
           "priceModifier": 0,
           "stock": 50
-        },
-        {
-          "sku": "TSHIRT-BLK-M",
-          "attributes": {
-            "Size": "M",
-            "Color": "Black"
-          },
-          "priceModifier": 0,
-          "stock": 30
         }
       ],
       "images": [
-        "https://africe-images.s3.eu-central-1.amazonaws.com/products/uuid/front.jpg"
+        "https://africa-shop-dev.s3.eu-north-1.amazonaws.com/products/1/image.jpg"
       ],
+      "artistId": "a1b2c3d4-artist-id",
+      "artistName": "Африка Рекордс",
+      "artistSlug": "afryka-rekords",
       "status": "ACTIVE",
-      "createdAt": "2026-03-10T10:00:00Z",
-      "updatedAt": "2026-03-12T14:30:00Z"
+      "createdAt": "2026-03-15T20:00:00Z",
+      "updatedAt": "2026-03-15T20:00:00Z"
     }
   ],
-  "totalElements": 12,
+  "totalElements": 20,
   "totalPages": 1,
   "number": 0,
   "size": 20
@@ -157,15 +144,78 @@ Returns paginated list of **active** products only.
 GET /api/v1/products/{slug}
 ```
 
-**Path Parameters:**
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `slug` | string | Product URL slug |
 
-**Response:** `200 OK` — Single `ProductResponse` object (same shape as list item above)
+**Response:** `200 OK` — Single `ProductResponse` (same shape as list item above)
 
 **Error:** `404` if product not found
+
+---
+
+## Artists
+
+### List All Artists
+
+```
+GET /api/v1/artists
+```
+
+Returns all artists (not paginated — small dataset).
+
+**Response:** `200 OK`
+
+```json
+[
+  {
+    "id": "a1b2c3d4-artist-id",
+    "slug": "afryka-rekords",
+    "name": "Африка Рекордс",
+    "bio": "Український музичний лейбл та мерч-бренд.",
+    "image": null,
+    "socialLinks": {
+      "instagram": "https://instagram.com/africarecords"
+    },
+    "createdAt": "2026-03-15T20:00:00Z",
+    "updatedAt": "2026-03-15T20:00:00Z"
+  }
+]
+```
+
+---
+
+### Get Artist by Slug
+
+```
+GET /api/v1/artists/{slug}
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `slug` | string | Artist URL slug |
+
+**Response:** `200 OK` — Single `ArtistResponse` (same shape as list item above)
+
+**Error:** `404` if artist not found
+
+---
+
+### Get Artist Products
+
+```
+GET /api/v1/artists/{slug}/products
+```
+
+Returns paginated list of **active** products belonging to the artist.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `slug` | string | Artist URL slug |
+
+**Query Parameters:** `page`, `size`, `sort` (standard pagination)
+
+**Response:** `200 OK` — Paginated `ProductResponse`
 
 ---
 
@@ -177,34 +227,30 @@ GET /api/v1/products/{slug}
 POST /api/v1/orders/checkout
 ```
 
-Creates a guest order. Atomically decrements stock for all items within a MongoDB transaction. If any item is out of stock, the entire order is rejected.
+Creates a guest order. Atomically decrements stock for all items. If any item is out of stock, the entire order is rejected.
 
 **Request Body:**
 
 ```json
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
+  "firstName": "Іван",
+  "lastName": "Петренко",
+  "email": "ivan@example.com",
   "phone": "+380991234567",
   "items": [
     {
       "productId": "6650a1b2c3d4e5f6a7b8c9d0",
-      "sku": "TSHIRT-BLK-S",
+      "sku": "PROD-1-M",
       "quantity": 2
-    },
-    {
-      "productId": "6650a1b2c3d4e5f6a7b8c9d1",
-      "sku": "HOODIE-WHT-M",
-      "quantity": 1
     }
   ],
   "shippingDetails": {
-    "address": "123 Main Street",
-    "city": "Kyiv",
-    "postalCode": "01001",
-    "country": "Ukraine"
-  }
+    "city": "Київ",
+    "cityRef": "8d5a980d-391c-11dd-90d9-001a92567626",
+    "warehouseRef": "1ec09d88-e1c2-11e3-8c4a-0050568002cf",
+    "warehouseDescription": "Відділення №5: вул. Хрещатик, 22"
+  },
+  "comment": "Зателефонуйте перед відправкою"
 }
 ```
 
@@ -221,41 +267,44 @@ Creates a guest order. Atomically decrements stock for all items within a MongoD
 | `items[].sku` | Required, non-blank |
 | `items[].quantity` | Required, minimum 1 |
 | `shippingDetails` | Required |
-| `shippingDetails.address` | Required, non-blank |
 | `shippingDetails.city` | Required, non-blank |
-| `shippingDetails.postalCode` | Required, non-blank |
-| `shippingDetails.country` | Required, non-blank |
+| `shippingDetails.cityRef` | Required, non-blank (Nova Poshta city Ref) |
+| `shippingDetails.warehouseRef` | Required, non-blank (Nova Poshta warehouse Ref) |
+| `shippingDetails.warehouseDescription` | Required, non-blank |
+| `comment` | Optional |
 
-**Response:** `200 OK`
+**Response:** `201 Created`
 
 ```json
 {
   "id": "6650b2c3d4e5f6a7b8c9d0e1",
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
+  "firstName": "Іван",
+  "lastName": "Петренко",
+  "email": "ivan@example.com",
   "phone": "+380991234567",
   "items": [
     {
       "productId": "6650a1b2c3d4e5f6a7b8c9d0",
-      "productTitle": "Africa Tour T-Shirt",
-      "sku": "TSHIRT-BLK-S",
-      "variantName": "Size: S, Color: Black",
+      "productTitle": "Базова чорна футболка з гранж-акцентом",
+      "sku": "PROD-1-M",
+      "variantName": "M",
       "quantity": 2,
-      "unitPrice": 29.99
+      "unitPrice": 1000
     }
   ],
-  "totalAmount": 59.98,
+  "totalAmount": 2000,
   "status": "PENDING",
   "shippingDetails": {
-    "address": "123 Main Street",
-    "city": "Kyiv",
-    "postalCode": "01001",
+    "city": "Київ",
+    "cityRef": "8d5a980d-391c-11dd-90d9-001a92567626",
+    "warehouseRef": "1ec09d88-e1c2-11e3-8c4a-0050568002cf",
+    "warehouseDescription": "Відділення №5: вул. Хрещатик, 22",
     "country": "Ukraine",
-    "trackingNumber": null,
-    "carrier": null
+    "carrier": "Nova Poshta",
+    "trackingNumber": null
   },
-  "createdAt": "2026-03-15T12:00:00Z",
+  "comment": "Зателефонуйте перед відправкою",
+  "createdAt": "2026-03-16T12:00:00Z",
   "updatedAt": null
 }
 ```
@@ -263,6 +312,72 @@ Creates a guest order. Atomically decrements stock for all items within a MongoD
 **Errors:**
 - `400` — Validation failure or insufficient stock
 - `404` — Product not found
+
+---
+
+## Nova Poshta (Shipping)
+
+Proxy endpoints for Nova Poshta API. Used by the frontend for city search and warehouse selection during checkout.
+
+### Search Cities
+
+```
+GET /api/v1/orders/nova-poshta/cities
+```
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `q` | string | Yes | — | City name search query (Ukrainian) |
+| `limit` | int | No | `10` | Max results |
+
+**Response:** `200 OK`
+
+```json
+[
+  {
+    "ref": "8d5a980d-391c-11dd-90d9-001a92567626",
+    "name": "Київ",
+    "region": "Київська"
+  },
+  {
+    "ref": "db5c88f5-391c-11dd-90d9-001a92567626",
+    "name": "Київець",
+    "region": "Вінницька"
+  }
+]
+```
+
+---
+
+### Get Warehouses
+
+```
+GET /api/v1/orders/nova-poshta/warehouses
+```
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `cityRef` | string | Yes | — | Nova Poshta city Ref (from city search) |
+| `limit` | int | No | `50` | Max results |
+
+**Response:** `200 OK`
+
+```json
+[
+  {
+    "ref": "1ec09d88-e1c2-11e3-8c4a-0050568002cf",
+    "description": "Відділення №1: вул. Пирогівський шлях, 135",
+    "number": "1",
+    "shortAddress": "Київ, вул. Пирогівський шлях, 135"
+  },
+  {
+    "ref": "7f468024-e1c2-11e3-8c4a-0050568002cf",
+    "description": "Відділення №2: просп. Берестейський, 51",
+    "number": "2",
+    "shortAddress": "Київ, просп. Берестейський, 51"
+  }
+]
+```
 
 ---
 
@@ -354,13 +469,7 @@ GET /api/v1/admin/products
 
 Returns **all** products including DRAFT and ARCHIVED.
 
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `page` | int | No | Page number |
-| `size` | int | No | Page size |
-| `sort` | string | No | Sort field, e.g. `createdAt,desc` |
+**Query Parameters:** `page`, `size`, `sort` (standard pagination)
 
 **Response:** `200 OK` — Paginated `ProductResponse` (same shape as public endpoint)
 
@@ -372,47 +481,32 @@ Returns **all** products including DRAFT and ARCHIVED.
 POST /api/v1/admin/products
 ```
 
-Creates a new product with status `DRAFT`. Slug is auto-generated from title.
+Creates a new product with status `DRAFT`. Slug is auto-generated from title (Ukrainian → Latin transliteration).
 
 **Request Body:**
 
 ```json
 {
-  "title": "Africa Tour T-Shirt",
-  "description": "Limited edition tour merch with exclusive artwork",
-  "basePrice": 29.99,
+  "title": "Нова футболка",
+  "description": "Опис товару",
+  "basePrice": 1200,
+  "artistId": "a1b2c3d4-artist-id",
   "attributes": [
     {
-      "type": "Size",
-      "values": ["S", "M", "L", "XL"]
-    },
-    {
-      "type": "Color",
-      "values": ["Black", "White"]
+      "type": "Розмір",
+      "values": ["M", "L", "XL"]
     }
   ],
   "variants": [
     {
-      "sku": "TSHIRT-BLK-S",
-      "attributes": {
-        "Size": "S",
-        "Color": "Black"
-      },
+      "sku": "NEW-TSHIRT-M",
+      "attributes": { "Розмір": "M" },
       "priceModifier": 0,
       "stock": 50
-    },
-    {
-      "sku": "TSHIRT-WHT-XL",
-      "attributes": {
-        "Size": "XL",
-        "Color": "White"
-      },
-      "priceModifier": 2.00,
-      "stock": 25
     }
   ],
   "images": [
-    "https://africe-images.s3.eu-central-1.amazonaws.com/products/uuid/front.jpg"
+    "https://africa-shop-dev.s3.eu-north-1.amazonaws.com/products/uuid/front.jpg"
   ]
 }
 ```
@@ -422,11 +516,12 @@ Creates a new product with status `DRAFT`. Slug is auto-generated from title.
 | `title` | Required, non-blank |
 | `basePrice` | Required |
 | `description` | Optional |
+| `artistId` | Optional |
 | `attributes` | Optional |
 | `variants` | Optional |
 | `images` | Optional |
 
-**Response:** `200 OK` — `ProductResponse`
+**Response:** `201 Created` — `ProductResponse`
 
 ---
 
@@ -438,8 +533,6 @@ PUT /api/v1/admin/products/{id}
 
 Partial update — only non-null fields in the request body are updated.
 
-**Path Parameters:**
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `id` | string | Product MongoDB ID |
@@ -448,16 +541,10 @@ Partial update — only non-null fields in the request body are updated.
 
 ```json
 {
-  "title": "Updated Title",
-  "basePrice": 34.99,
-  "variants": [
-    {
-      "sku": "TSHIRT-BLK-S",
-      "attributes": { "Size": "S", "Color": "Black" },
-      "priceModifier": 0,
-      "stock": 100
-    }
-  ]
+  "title": "Оновлена назва",
+  "basePrice": 1500,
+  "artistId": "new-artist-id",
+  "variants": [...]
 }
 ```
 
@@ -475,8 +562,6 @@ DELETE /api/v1/admin/products/{id}
 
 Soft-deletes a product by setting its status to `ARCHIVED`.
 
-**Path Parameters:**
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `id` | string | Product MongoDB ID |
@@ -484,6 +569,99 @@ Soft-deletes a product by setting its status to `ARCHIVED`.
 **Response:** `204 No Content`
 
 **Error:** `404` if product not found
+
+---
+
+## Admin — Artists
+
+### List All Artists
+
+```
+GET /api/v1/admin/artists
+```
+
+**Query Parameters:** `page`, `size`, `sort` (standard pagination)
+
+**Response:** `200 OK` — Paginated `ArtistResponse`
+
+---
+
+### Create Artist
+
+```
+POST /api/v1/admin/artists
+```
+
+Slug is auto-generated from name (Ukrainian → Latin transliteration).
+
+**Request Body:**
+
+```json
+{
+  "name": "Новий Артист",
+  "bio": "Біографія артиста",
+  "image": "https://example.com/photo.jpg",
+  "socialLinks": {
+    "instagram": "https://instagram.com/artist",
+    "spotify": "https://open.spotify.com/artist/..."
+  }
+}
+```
+
+| Field | Rules |
+|-------|-------|
+| `name` | Required, non-blank |
+| `bio` | Optional |
+| `image` | Optional |
+| `socialLinks` | Optional |
+
+**Response:** `201 Created` — `ArtistResponse`
+
+---
+
+### Update Artist
+
+```
+PUT /api/v1/admin/artists/{id}
+```
+
+Partial update — only non-null fields are updated. If `name` is updated, slug is regenerated.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | string | Artist MongoDB ID |
+
+**Request Body:** (all fields optional)
+
+```json
+{
+  "name": "Оновлена Назва",
+  "bio": "Новий опис",
+  "socialLinks": { "instagram": "https://instagram.com/new" }
+}
+```
+
+**Response:** `200 OK` — `ArtistResponse`
+
+**Error:** `404` if artist not found
+
+---
+
+### Delete Artist
+
+```
+DELETE /api/v1/admin/artists/{id}
+```
+
+Permanently deletes the artist.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | string | Artist MongoDB ID |
+
+**Response:** `204 No Content`
+
+**Error:** `404` if artist not found
 
 ---
 
@@ -500,7 +678,7 @@ GET /api/v1/admin/orders
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `search` | string | No | Filter by customer email (case-insensitive) |
-| `status` | string | No | Filter by order status: `PENDING`, `CONFIRMED`, `SHIPPED`, `DELIVERED`, `CANCELLED` |
+| `status` | string | No | Filter by status: `PENDING`, `CONFIRMED`, `SHIPPED`, `DELIVERED`, `CANCELLED` |
 | `page` | int | No | Page number |
 | `size` | int | No | Page size |
 | `sort` | string | No | Sort field |
@@ -514,8 +692,6 @@ GET /api/v1/admin/orders
 ```
 PUT /api/v1/admin/orders/{id}/status
 ```
-
-**Path Parameters:**
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
@@ -547,7 +723,7 @@ PUT /api/v1/admin/orders/{id}/status
 GET /api/v1/admin/dashboard/stats
 ```
 
-Returns aggregated statistics for the store. Only counts orders with status `CONFIRMED`, `SHIPPED`, or `DELIVERED`.
+Returns aggregated statistics. Only counts orders with status `CONFIRMED`, `SHIPPED`, or `DELIVERED`.
 
 **Query Parameters:**
 
@@ -560,33 +736,22 @@ Returns aggregated statistics for the store. Only counts orders with status `CON
 
 ```json
 {
-  "totalRevenue": 12500.00,
+  "totalRevenue": 125000.00,
   "totalOrders": 150,
   "totalUnitsSold": 320,
   "topProducts": [
     {
       "productId": "6650a1b2c3d4e5f6a7b8c9d0",
-      "title": "Africa Tour T-Shirt",
+      "title": "Базова чорна футболка з гранж-акцентом",
       "unitsSold": 45,
-      "revenue": 2250.00
-    },
-    {
-      "productId": "6650a1b2c3d4e5f6a7b8c9d1",
-      "title": "Logo Hoodie",
-      "unitsSold": 30,
-      "revenue": 1800.00
+      "revenue": 45000.00
     }
   ],
   "revenueByDay": [
     {
       "date": "2026-03-14",
-      "revenue": 450.00,
+      "revenue": 4500.00,
       "orders": 5
-    },
-    {
-      "date": "2026-03-15",
-      "revenue": 320.00,
-      "orders": 3
     }
   ]
 }
@@ -602,7 +767,7 @@ Returns aggregated statistics for the store. Only counts orders with status `CON
 POST /api/v1/admin/products/images/presign
 ```
 
-Generates a pre-signed S3 URL for direct image upload from the frontend. The frontend uploads the file directly to S3 using the returned `uploadUrl`, then uses the `publicUrl` when creating/updating products.
+Generates a pre-signed S3 URL for direct image upload from the frontend.
 
 **Request Body:**
 
@@ -613,17 +778,17 @@ Generates a pre-signed S3 URL for direct image upload from the frontend. The fro
 }
 ```
 
-| Field | Rules | Valid Values |
-|-------|-------|-------------|
-| `fileName` | Required, non-blank | Any filename |
-| `contentType` | Required, non-blank | `image/jpeg`, `image/png`, `image/webp` |
+| Field | Rules |
+|-------|-------|
+| `fileName` | Required, non-blank |
+| `contentType` | Required, non-blank (`image/jpeg`, `image/png`, `image/webp`) |
 
 **Response:** `200 OK`
 
 ```json
 {
-  "uploadUrl": "https://africe-images.s3.eu-central-1.amazonaws.com/products/550e8400.../tshirt-front.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&...",
-  "publicUrl": "https://africe-images.s3.eu-central-1.amazonaws.com/products/550e8400.../tshirt-front.jpg"
+  "uploadUrl": "https://africa-shop-dev.s3.eu-north-1.amazonaws.com/...?X-Amz-Algorithm=...",
+  "publicUrl": "https://africa-shop-dev.s3.eu-north-1.amazonaws.com/products/uuid/tshirt-front.jpg"
 }
 ```
 
@@ -631,14 +796,10 @@ Generates a pre-signed S3 URL for direct image upload from the frontend. The fro
 
 ```javascript
 // 1. Get pre-signed URL
-const { uploadUrl, publicUrl } = await fetch('/api/v1/admin/products/images/presign', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ fileName: 'photo.jpg', contentType: 'image/jpeg' })
-}).then(r => r.json());
+const { uploadUrl, publicUrl } = await api.post('/api/v1/admin/products/images/presign', {
+  fileName: 'photo.jpg',
+  contentType: 'image/jpeg'
+});
 
 // 2. Upload directly to S3
 await fetch(uploadUrl, {
@@ -647,22 +808,8 @@ await fetch(uploadUrl, {
   body: imageFile
 });
 
-// 3. Use publicUrl when creating/updating product
-await fetch('/api/v1/admin/products', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    title: 'New Product',
-    basePrice: 29.99,
-    images: [publicUrl]
-  })
-}).then(r => r.json());
+// 3. Use publicUrl in product images array
 ```
-
-**Error:** `400` if content type is not supported
 
 ---
 
@@ -714,13 +861,22 @@ No authentication required.
 |--------|----------|------|-------------|
 | `GET` | `/api/v1/products` | No | List active products |
 | `GET` | `/api/v1/products/{slug}` | No | Get product by slug |
+| `GET` | `/api/v1/artists` | No | List all artists |
+| `GET` | `/api/v1/artists/{slug}` | No | Get artist by slug |
+| `GET` | `/api/v1/artists/{slug}/products` | No | Get artist's products |
 | `POST` | `/api/v1/orders/checkout` | No | Create guest order |
+| `GET` | `/api/v1/orders/nova-poshta/cities` | No | Search cities (Nova Poshta) |
+| `GET` | `/api/v1/orders/nova-poshta/warehouses` | No | Get warehouses for city |
 | `POST` | `/api/v1/auth/login` | No | Admin login |
 | `POST` | `/api/v1/auth/refresh` | No | Refresh access token |
 | `GET` | `/api/v1/admin/products` | JWT | List all products |
 | `POST` | `/api/v1/admin/products` | JWT | Create product |
 | `PUT` | `/api/v1/admin/products/{id}` | JWT | Update product |
 | `DELETE` | `/api/v1/admin/products/{id}` | JWT | Archive product |
+| `GET` | `/api/v1/admin/artists` | JWT | List all artists (paginated) |
+| `POST` | `/api/v1/admin/artists` | JWT | Create artist |
+| `PUT` | `/api/v1/admin/artists/{id}` | JWT | Update artist |
+| `DELETE` | `/api/v1/admin/artists/{id}` | JWT | Delete artist |
 | `GET` | `/api/v1/admin/orders` | JWT | List orders |
 | `PUT` | `/api/v1/admin/orders/{id}/status` | JWT | Update order status |
 | `GET` | `/api/v1/admin/dashboard/stats` | JWT | Dashboard statistics |

@@ -36,6 +36,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,10 +102,12 @@ public class OrderService {
 
         // Build and save order
         ShippingDetails shippingDetails = ShippingDetails.builder()
-                .address(request.getShippingDetails().getAddress())
                 .city(request.getShippingDetails().getCity())
-                .postalCode(request.getShippingDetails().getPostalCode())
-                .country(request.getShippingDetails().getCountry())
+                .cityRef(request.getShippingDetails().getCityRef())
+                .warehouseRef(request.getShippingDetails().getWarehouseRef())
+                .warehouseDescription(request.getShippingDetails().getWarehouseDescription())
+                .carrier("Nova Poshta")
+                .country("Ukraine")
                 .build();
 
         Order order = Order.builder()
@@ -115,6 +119,7 @@ public class OrderService {
                 .totalAmount(totalAmount)
                 .status(OrderStatus.PENDING)
                 .shippingDetails(shippingDetails)
+                .comment(request.getComment())
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
@@ -164,12 +169,32 @@ public class OrderService {
         return orders.map(this::toOrderResponse);
     }
 
+    private static final Map<OrderStatus, Set<OrderStatus>> VALID_TRANSITIONS = Map.of(
+            OrderStatus.PENDING, Set.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED),
+            OrderStatus.CONFIRMED, Set.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
+            OrderStatus.SHIPPED, Set.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED),
+            OrderStatus.DELIVERED, Set.of(),
+            OrderStatus.CANCELLED, Set.of()
+    );
+
     public OrderResponse updateStatus(String orderId, OrderStatus newStatus) {
         Order order = findById(orderId);
+        OrderStatus currentStatus = order.getStatus();
+
+        Set<OrderStatus> allowed = VALID_TRANSITIONS.getOrDefault(currentStatus, Set.of());
+        if (!allowed.contains(newStatus)) {
+            throw new IllegalArgumentException(
+                    String.format("Неможливо змінити статус з %s на %s", currentStatus, newStatus));
+        }
+
         order.setStatus(newStatus);
         order.setUpdatedAt(Instant.now());
         order = orderRepository.save(order);
         return toOrderResponse(order);
+    }
+
+    public OrderResponse getOrderResponse(String id) {
+        return toOrderResponse(findById(id));
     }
 
     public Order findById(String id) {
@@ -199,6 +224,9 @@ public class OrderService {
                     .city(sd.getCity())
                     .postalCode(sd.getPostalCode())
                     .country(sd.getCountry())
+                    .cityRef(sd.getCityRef())
+                    .warehouseRef(sd.getWarehouseRef())
+                    .warehouseDescription(sd.getWarehouseDescription())
                     .trackingNumber(sd.getTrackingNumber())
                     .carrier(sd.getCarrier())
                     .build();
@@ -214,6 +242,7 @@ public class OrderService {
                 .totalAmount(order.getTotalAmount())
                 .status(order.getStatus() != null ? order.getStatus().name() : null)
                 .shippingDetails(shippingResponse)
+                .comment(order.getComment())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .build();

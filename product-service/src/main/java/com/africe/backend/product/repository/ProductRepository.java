@@ -19,4 +19,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     Page<Product> findByStatusAndTitleContainingIgnoreCase(ProductStatus status, String title, Pageable pageable);
 
     Page<Product> findByStatusAndArtistId(ProductStatus status, String artistId, Pageable pageable);
+
+    Page<Product> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 }
