@@ -5,8 +5,9 @@ import com.africe.backend.common.dto.NovaWarehouseResponse;
 import com.africe.backend.order.config.NovaPoshtaProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -17,12 +18,23 @@ import java.util.Map;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class NovaPoshtaClient {
 
     private final NovaPoshtaProperties properties;
     private final ObjectMapper objectMapper;
+    private final RestClient restClient;
 
+    public NovaPoshtaClient(NovaPoshtaProperties properties, ObjectMapper objectMapper) {
+        this.properties = properties;
+        this.objectMapper = objectMapper;
+        this.restClient = RestClient.builder()
+                .baseUrl(properties.getBaseUrl())
+                .defaultHeader("Content-Type", "application/json")
+                .build();
+    }
+
+    @Cacheable(value = "novaPoshtaCities", key = "#query + '-' + #limit")
+    @CircuitBreaker(name = "novaPoshta", fallbackMethod = "searchCitiesFallback")
     public List<NovaCityResponse> searchCities(String query, int limit) {
         Map<String, Object> body = Map.of(
                 "apiKey", properties.getApiKey(),
@@ -34,15 +46,12 @@ public class NovaPoshtaClient {
                 )
         );
 
-        try {
-            String json = RestClient.create()
-                    .post()
-                    .uri(properties.getBaseUrl())
-                    .header("Content-Type", "application/json")
-                    .body(body)
-                    .retrieve()
-                    .body(String.class);
+        String json = restClient.post()
+                .body(body)
+                .retrieve()
+                .body(String.class);
 
+        try {
             JsonNode root = objectMapper.readTree(json);
             if (!root.path("success").asBoolean(false)) {
                 log.warn("Nova Poshta searchSettlements failed: {}", root.path("errors"));
@@ -63,11 +72,13 @@ public class NovaPoshtaClient {
             }
             return cities;
         } catch (Exception e) {
-            log.error("Nova Poshta searchSettlements error: {}", e.getMessage(), e);
+            log.error("Nova Poshta searchSettlements parse error: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
 
+    @Cacheable(value = "novaPoshtaWarehouses", key = "#cityRef")
+    @CircuitBreaker(name = "novaPoshta", fallbackMethod = "getWarehousesFallback")
     public List<NovaWarehouseResponse> getWarehouses(String cityRef, int limit) {
         Map<String, Object> body = Map.of(
                 "apiKey", properties.getApiKey(),
@@ -79,15 +90,12 @@ public class NovaPoshtaClient {
                 )
         );
 
-        try {
-            String json = RestClient.create()
-                    .post()
-                    .uri(properties.getBaseUrl())
-                    .header("Content-Type", "application/json")
-                    .body(body)
-                    .retrieve()
-                    .body(String.class);
+        String json = restClient.post()
+                .body(body)
+                .retrieve()
+                .body(String.class);
 
+        try {
             JsonNode root = objectMapper.readTree(json);
             if (!root.path("success").asBoolean(false)) {
                 log.warn("Nova Poshta getWarehouses failed: {}", root.path("errors"));
@@ -105,8 +113,18 @@ public class NovaPoshtaClient {
             }
             return warehouses;
         } catch (Exception e) {
-            log.error("Nova Poshta getWarehouses error: {}", e.getMessage(), e);
+            log.error("Nova Poshta getWarehouses parse error: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    private List<NovaCityResponse> searchCitiesFallback(String query, int limit, Throwable t) {
+        log.warn("Nova Poshta circuit breaker open for searchCities: {}", t.getMessage());
+        return Collections.emptyList();
+    }
+
+    private List<NovaWarehouseResponse> getWarehousesFallback(String cityRef, int limit, Throwable t) {
+        log.warn("Nova Poshta circuit breaker open for getWarehouses: {}", t.getMessage());
+        return Collections.emptyList();
     }
 }

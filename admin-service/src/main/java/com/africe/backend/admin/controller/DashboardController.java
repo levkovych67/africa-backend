@@ -5,6 +5,7 @@ import com.africe.backend.common.dto.RevenueDayDto;
 import com.africe.backend.common.dto.TopProductDto;
 import com.africe.backend.common.model.OrderStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/admin/dashboard")
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class DashboardController {
 
     private final MongoTemplate mongoTemplate;

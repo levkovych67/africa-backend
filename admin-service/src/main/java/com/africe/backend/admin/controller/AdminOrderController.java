@@ -33,7 +33,7 @@ public class AdminOrderController {
     }
 
     @PutMapping("/{id}/status")
-    @AdminAudited(action = "UPDATE_ORDER_STATUS")
+    @AdminAudited(action = "UPDATE_ORDER_STATUS", targetType = "Order")
     public OrderResponse updateStatus(@PathVariable String id,
                                       @Valid @RequestBody UpdateOrderStatusRequest request) {
         return orderService.updateStatus(id, request.getStatus());

@@ -64,7 +64,7 @@ public class AdminProductController {
     }
 
     @PostMapping
-    @AdminAudited(action = "CREATE_PRODUCT")
+    @AdminAudited(action = "CREATE_PRODUCT", targetType = "Product")
     public ResponseEntity<ProductResponse> create(@Valid @RequestBody CreateProductRequest request) {
         String slug = SlugUtils.toSlug(request.getTitle());
 
@@ -90,7 +90,7 @@ public class AdminProductController {
     }
 
     @PutMapping("/{id}")
-    @AdminAudited(action = "UPDATE_PRODUCT")
+    @AdminAudited(action = "UPDATE_PRODUCT", targetType = "Product")
     public ProductResponse update(@PathVariable String id,
                                   @RequestBody UpdateProductRequest request) {
         Product product = productService.findById(id);
@@ -126,7 +126,7 @@ public class AdminProductController {
     }
 
     @DeleteMapping("/{id}")
-    @AdminAudited(action = "ARCHIVE_PRODUCT")
+    @AdminAudited(action = "ARCHIVE_PRODUCT", targetType = "Product")
     public ResponseEntity<Void> archive(@PathVariable String id) {
         Product product = productService.findById(id);
         product.setStatus(ProductStatus.ARCHIVED);

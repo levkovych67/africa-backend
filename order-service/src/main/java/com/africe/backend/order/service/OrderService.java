@@ -20,14 +20,17 @@ import com.africe.backend.order.repository.InventoryTransactionRepository;
 import com.africe.backend.order.repository.OrderRepository;
 import com.africe.backend.order.repository.OutboxEventRepository;
 import com.africe.backend.product.service.ProductService;
+import com.africe.backend.common.event.OutboxEventCreated;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -49,6 +53,7 @@ public class OrderService {
     private final OutboxEventRepository outboxEventRepository;
     private final ProductService productService;
     private final MongoTemplate mongoTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public OrderResponse checkout(CheckoutRequest request) {
@@ -153,6 +158,7 @@ public class OrderService {
                 .createdAt(Instant.now())
                 .build();
         outboxEventRepository.save(outboxEvent);
+        eventPublisher.publishEvent(new OutboxEventCreated(this));
 
         return toOrderResponse(order);
     }
@@ -187,10 +193,37 @@ public class OrderService {
                     String.format("Неможливо змінити статус з %s на %s", currentStatus, newStatus));
         }
 
+        if (newStatus == OrderStatus.CANCELLED) {
+            restoreStock(order);
+        }
+
         order.setStatus(newStatus);
         order.setUpdatedAt(Instant.now());
         order = orderRepository.save(order);
         return toOrderResponse(order);
+    }
+
+    private void restoreStock(Order order) {
+        for (OrderItem item : order.getItems()) {
+            try {
+                Query query = new Query(Criteria.where("id").is(item.getProductId())
+                        .and("variants.sku").is(item.getSku()));
+                Update update = new Update().inc("variants.$.stock", item.getQuantity());
+                mongoTemplate.updateFirst(query, update, Product.class);
+
+                InventoryTransaction tx = InventoryTransaction.builder()
+                        .productId(item.getProductId())
+                        .sku(item.getSku())
+                        .change(item.getQuantity())
+                        .orderId(order.getId())
+                        .createdAt(Instant.now())
+                        .build();
+                inventoryTransactionRepository.save(tx);
+            } catch (Exception e) {
+                log.warn("Failed to restore stock for product {} sku {}: {}",
+                        item.getProductId(), item.getSku(), e.getMessage());
+            }
+        }
     }
 
     public OrderResponse getOrderResponse(String id) {

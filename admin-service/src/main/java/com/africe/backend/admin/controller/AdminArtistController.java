@@ -41,7 +41,7 @@ public class AdminArtistController {
     }
 
     @PostMapping
-    @AdminAudited(action = "CREATE_ARTIST")
+    @AdminAudited(action = "CREATE_ARTIST", targetType = "Artist")
     public ResponseEntity<ArtistResponse> create(@Valid @RequestBody CreateArtistRequest request) {
         Artist artist = Artist.builder()
                 .id(UUID.randomUUID().toString())
@@ -59,7 +59,7 @@ public class AdminArtistController {
     }
 
     @PutMapping("/{id}")
-    @AdminAudited(action = "UPDATE_ARTIST")
+    @AdminAudited(action = "UPDATE_ARTIST", targetType = "Artist")
     public ArtistResponse update(@PathVariable String id, @RequestBody UpdateArtistRequest request) {
         Artist artist = artistService.findById(id);
 
@@ -83,7 +83,7 @@ public class AdminArtistController {
     }
 
     @DeleteMapping("/{id}")
-    @AdminAudited(action = "DELETE_ARTIST")
+    @AdminAudited(action = "DELETE_ARTIST", targetType = "Artist")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         artistService.findById(id);
         artistRepository.deleteById(id);

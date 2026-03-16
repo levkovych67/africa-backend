@@ -1,10 +1,12 @@
 package com.africe.backend.telegram.worker;
 
+import com.africe.backend.common.event.OutboxEventCreated;
 import com.africe.backend.common.model.OutboxEvent;
 import com.africe.backend.common.model.OutboxStatus;
 import com.africe.backend.telegram.handler.TelegramNotificationHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -14,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service
@@ -25,13 +28,26 @@ public class OutboxWorker {
     private final TelegramOutboxEventRepository outboxEventRepository;
     private final TelegramNotificationHandler telegramNotificationHandler;
     private final MongoTemplate mongoTemplate;
+    private final AtomicBoolean processing = new AtomicBoolean(false);
 
     @Scheduled(fixedDelay = 5000)
     public void processOutboxEvents() {
-        OutboxEvent event;
-        while ((event = claimNextEvent()) != null) {
-            processEvent(event);
+        if (!processing.compareAndSet(false, true)) {
+            return;
         }
+        try {
+            OutboxEvent event;
+            while ((event = claimNextEvent()) != null) {
+                processEvent(event);
+            }
+        } finally {
+            processing.set(false);
+        }
+    }
+
+    @EventListener(OutboxEventCreated.class)
+    public void onOutboxEventCreated(OutboxEventCreated event) {
+        processOutboxEvents();
     }
 
     private OutboxEvent claimNextEvent() {
