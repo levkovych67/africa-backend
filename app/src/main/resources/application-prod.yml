@@ -1,0 +1,7 @@
+seed:
+  enabled: false
+
+logging:
+  level:
+    com.africe.backend: INFO
+    org.springframework.data.mongodb: WARN

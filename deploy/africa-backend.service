@@ -1,0 +1,14 @@
+[Unit]
+Description=Africa Backend
+After=network.target
+
+[Service]
+User=deploy
+WorkingDirectory=/opt/africa/africa-backend
+ExecStart=/usr/bin/java -jar app/build/libs/app-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+EnvironmentFile=/opt/africa/africa-backend/.env.prod
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
