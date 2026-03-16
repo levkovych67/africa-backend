@@ -55,7 +55,7 @@ public class NovaPoshtaClient {
                 JsonNode addresses = item.path("Addresses");
                 for (JsonNode addr : addresses) {
                     cities.add(NovaCityResponse.builder()
-                            .ref(addr.path("Ref").asText())
+                            .ref(addr.path("DeliveryCity").asText())
                             .name(addr.path("MainDescription").asText())
                             .region(addr.path("Area").asText())
                             .build());

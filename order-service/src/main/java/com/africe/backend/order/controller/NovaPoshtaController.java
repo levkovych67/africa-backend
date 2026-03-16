@@ -20,15 +20,15 @@ public class NovaPoshtaController {
 
     @GetMapping("/cities")
     public List<NovaCityResponse> searchCities(
-            @RequestParam String q,
-            @RequestParam(defaultValue = "10") int limit) {
+            @RequestParam(value = "q") String q,
+            @RequestParam(value = "limit", defaultValue = "10") int limit) {
         return novaPoshtaClient.searchCities(q, limit);
     }
 
     @GetMapping("/warehouses")
     public List<NovaWarehouseResponse> getWarehouses(
-            @RequestParam String cityRef,
-            @RequestParam(defaultValue = "50") int limit) {
+            @RequestParam(value = "cityRef") String cityRef,
+            @RequestParam(value = "limit", defaultValue = "50") int limit) {
         return novaPoshtaClient.getWarehouses(cityRef, limit);
     }
 }
