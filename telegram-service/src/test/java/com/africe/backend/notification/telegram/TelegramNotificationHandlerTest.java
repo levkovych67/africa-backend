@@ -31,14 +31,14 @@ class TelegramNotificationHandlerTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        handler = new TelegramNotificationHandler(telegramClient, objectMapper, List.of("12345"));
+        handler = new TelegramNotificationHandler(telegramClient, objectMapper, List.of("12345"), "https://example.com");
     }
 
     @Test
     void handleOrderCreated_sendsMessageWithButtons() throws Exception {
         OrderResponse order = new OrderResponse(
                 "o1", "John", "Doe", "j@t.com", "+380",
-                List.of(new OrderItemResponse("p1", "T-Shirt", "SKU-M", "M", 2, BigDecimal.valueOf(500))),
+                List.of(new OrderItemResponse("p1", "T-Shirt", "test-tshirt", "SKU-M", "M", 2, BigDecimal.valueOf(500))),
                 BigDecimal.valueOf(1000), OrderStatus.PENDING, PaymentMethod.COD,
                 new ShippingDetailsResponse("Kyiv", "r1", "w1", "Warehouse #1", null, "Nova Poshta"),
                 null, "token", null, null);

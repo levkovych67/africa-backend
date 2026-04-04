@@ -1,9 +1,0 @@
-spring:
-  data:
-    mongodb:
-      uri: ${MONGODB_URI}
-
-logging:
-  level:
-    root: WARN
-    com.africe: INFO

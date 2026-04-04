@@ -24,8 +24,7 @@ public class CheckoutController {
     }
 
     @GetMapping("/{id}")
-    public OrderResponse getOrder(@PathVariable String id,
-                                  @RequestParam(required = false) String token) {
-        return orderService.getOrder(id, token);
+    public OrderResponse getOrder(@PathVariable String id) {
+        return orderService.getOrder(id);
     }
 }

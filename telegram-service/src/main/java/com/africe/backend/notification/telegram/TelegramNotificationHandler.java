@@ -16,13 +16,16 @@ public class TelegramNotificationHandler {
     private final TelegramClient telegramClient;
     private final ObjectMapper objectMapper;
     private final List<String> chatIds;
+    private final String frontendUrl;
 
     public TelegramNotificationHandler(TelegramClient telegramClient,
                                         ObjectMapper objectMapper,
-                                        @Value("${telegram.chat-ids}") List<String> chatIds) {
+                                        @Value("${telegram.chat-ids}") List<String> chatIds,
+                                        @Value("${frontend.url:http://localhost:3000}") String frontendUrl) {
         this.telegramClient = telegramClient;
         this.objectMapper = objectMapper;
         this.chatIds = chatIds;
+        this.frontendUrl = frontendUrl;
     }
 
     public void handle(String type, String payload) {
@@ -54,7 +57,10 @@ public class TelegramNotificationHandler {
 
         if (order.items() != null) {
             for (var item : order.items()) {
-                sb.append("- ").append(esc(item.productTitle()))
+                String productLink = item.productSlug() != null
+                        ? "<a href=\"" + esc(frontendUrl) + "/product/" + esc(item.productSlug()) + "\">" + esc(item.productTitle()) + "</a>"
+                        : esc(item.productTitle());
+                sb.append("- ").append(productLink)
                         .append(" (").append(esc(item.variantName())).append(")")
                         .append(" x").append(item.quantity())
                         .append(" = ").append(item.unitPrice().multiply(java.math.BigDecimal.valueOf(item.quantity())))

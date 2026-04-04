@@ -151,7 +151,7 @@ public class EmailNotificationHandler {
 
         // ── HEADER ──
         sb.append("<tr><td style=\"padding:24px 32px;background-color:#FFFFFF;border-radius:16px 16px 0 0;border-bottom:1px solid #E7E5E4;\">");
-        sb.append("<img src=\"").append(esc(frontendUrl)).append("/images/new%20logo.webp\" alt=\"AFRICA SHOP\" width=\"120\" height=\"40\" style=\"display:block;height:32px;width:auto;\" />");
+        sb.append("<img src=\"").append(esc(frontendUrl)).append("/images/new%20logo.PNG\" alt=\"AFRICA SHOP\" width=\"120\" height=\"40\" style=\"display:block;height:32px;width:auto;\" />");
         sb.append("</td></tr>");
 
         // ── BODY ──

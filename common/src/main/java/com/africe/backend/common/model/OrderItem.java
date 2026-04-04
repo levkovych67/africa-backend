@@ -15,6 +15,7 @@ public class OrderItem {
 
     private String productId;
     private String productTitle;
+    private String productSlug;
     private String sku;
     private String variantName;
     private int quantity;

@@ -163,24 +163,22 @@ class OrderServiceTest {
     }
 
     @Test
-    void getOrder_withAccessToken() {
+    void getOrder_found() {
         Order order = Order.builder().id("o1").firstName("John").lastName("Doe")
                 .email("j@t.com").phone("+380").status(OrderStatus.PENDING)
-                .accessToken("token123").items(List.of()).build();
-        when(orderRepository.findByIdAndAccessToken("o1", "token123"))
-                .thenReturn(Optional.of(order));
+                .items(List.of()).build();
+        when(orderRepository.findById("o1")).thenReturn(Optional.of(order));
 
-        OrderResponse response = orderService.getOrder("o1", "token123");
+        OrderResponse response = orderService.getOrder("o1");
 
         assertThat(response.id()).isEqualTo("o1");
     }
 
     @Test
-    void getOrder_wrongToken_throws() {
-        when(orderRepository.findByIdAndAccessToken("o1", "wrong"))
-                .thenReturn(Optional.empty());
+    void getOrder_notFound_throws() {
+        when(orderRepository.findById("o1")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> orderService.getOrder("o1", "wrong"))
+        assertThatThrownBy(() -> orderService.getOrder("o1"))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 

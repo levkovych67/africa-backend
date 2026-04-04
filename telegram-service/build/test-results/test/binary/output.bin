@@ -1,2 +1,0 @@
-Š20:06:01.536 [Test worker] ERROR com.africe.backend.notification.outbox.OutboxWorker -- Failed to process outbox event e3: Telegram down
-‡20:06:01.570 [Test worker] ERROR com.africe.backend.notification.outbox.OutboxWorker -- Failed to process outbox event e4: Still down

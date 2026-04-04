@@ -49,7 +49,7 @@ public class AdminOrderController {
 
     @GetMapping("/{id}")
     public OrderResponse getOrder(@PathVariable String id) {
-        return orderService.getOrder(id, null);
+        return orderService.getOrder(id);
     }
 
     @PutMapping("/{id}/status")

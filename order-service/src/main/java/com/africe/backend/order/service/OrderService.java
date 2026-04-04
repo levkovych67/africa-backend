@@ -16,8 +16,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -96,6 +94,7 @@ public class OrderService {
                 orderItems.add(OrderItem.builder()
                         .productId(product.getId())
                         .productTitle(product.getTitle())
+                        .productSlug(product.getSlug())
                         .sku(item.sku())
                         .variantName(variantName)
                         .quantity(item.quantity())
@@ -153,22 +152,9 @@ public class OrderService {
         }
     }
 
-    public OrderResponse getOrder(String id, String accessToken) {
-        Order order;
-        if (accessToken != null && !accessToken.isBlank()) {
-            // Public access — requires valid accessToken
-            order = orderRepository.findByIdAndAccessToken(id, accessToken)
-                    .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
-        } else {
-            // No token — only allow if caller is authenticated admin
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null || !auth.isAuthenticated()
-                    || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-                throw new ResourceNotFoundException("Order", "id", id);
-            }
-            order = orderRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
-        }
+    public OrderResponse getOrder(String id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
         return toResponse(order);
     }
 
@@ -243,8 +229,8 @@ public class OrderService {
         List<OrderItemResponse> items = order.getItems() != null
                 ? order.getItems().stream()
                 .map(i -> new OrderItemResponse(
-                        i.getProductId(), i.getProductTitle(), i.getSku(),
-                        i.getVariantName(), i.getQuantity(), i.getUnitPrice()))
+                        i.getProductId(), i.getProductTitle(), i.getProductSlug(),
+                        i.getSku(), i.getVariantName(), i.getQuantity(), i.getUnitPrice()))
                 .toList()
                 : List.of();
 
