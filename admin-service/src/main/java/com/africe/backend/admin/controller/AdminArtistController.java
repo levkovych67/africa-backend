@@ -7,9 +7,12 @@ import com.africe.backend.common.model.Artist;
 import com.africe.backend.product.repository.ArtistRepository;
 import com.africe.backend.product.service.ArtistService;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RestController
 @RequestMapping("/api/v1/admin/artists")
@@ -24,10 +27,18 @@ public class AdminArtistController {
     }
 
     @GetMapping
-    public List<ArtistResponse> listArtists() {
-        return artistRepository.findAll().stream()
-                .map(artistService::toResponse)
-                .toList();
+    public Page<ArtistResponse> listArtists(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return artistRepository.findAll(pageable).map(artistService::toResponse);
+    }
+
+    @GetMapping("/{id}")
+    public ArtistResponse getArtist(@PathVariable String id) {
+        Artist artist = artistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Artist", "id", id));
+        return artistService.toResponse(artist);
     }
 
     @PostMapping
@@ -50,6 +61,7 @@ public class AdminArtistController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @AdminAudited(action = "DELETE_ARTIST")
     @CacheEvict(value = {"artists", "artistBySlug", "productFilters"}, allEntries = true)
     public void deleteArtist(@PathVariable String id) {

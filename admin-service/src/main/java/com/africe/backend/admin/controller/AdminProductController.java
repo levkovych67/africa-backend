@@ -45,6 +45,13 @@ public class AdminProductController {
         return products.map(productService::toResponse);
     }
 
+    @GetMapping("/{id}")
+    public ProductResponse getProduct(@PathVariable String id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
+        return productService.toResponse(product);
+    }
+
     @PostMapping
     @AdminAudited(action = "CREATE_PRODUCT")
     @CacheEvict(value = {"products", "productBySlug", "productFilters"}, allEntries = true)

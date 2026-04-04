@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.core.io.ClassPathResource;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -77,6 +78,7 @@ public class EmailNotificationHandler {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
+            helper.addInline("logo", new ClassPathResource("logo.png"), "image/png");
             mailSender.send(message);
             log.info("Email sent to {} \u2014 {}", to, subject);
         } catch (Exception e) {
@@ -151,7 +153,7 @@ public class EmailNotificationHandler {
 
         // ── HEADER ──
         sb.append("<tr><td style=\"padding:24px 32px;background-color:#FFFFFF;border-radius:16px 16px 0 0;border-bottom:1px solid #E7E5E4;\">");
-        sb.append("<img src=\"").append(esc(frontendUrl)).append("/images/new%20logo.PNG\" alt=\"AFRICA SHOP\" width=\"120\" height=\"40\" style=\"display:block;height:32px;width:auto;\" />");
+        sb.append("<img src=\"cid:logo\" alt=\"AFRICA SHOP\" width=\"120\" height=\"40\" style=\"display:block;height:32px;width:auto;\" />");
         sb.append("</td></tr>");
 
         // ── BODY ──
