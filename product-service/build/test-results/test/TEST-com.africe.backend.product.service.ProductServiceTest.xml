@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.africe.backend.product.service.ProductServiceTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-04-04T14:38:44" hostname="LSD-GRIM" time="1.403">
+  <properties/>
+  <testcase name="toResponse_handlesNullVariantsAndAttributes()" classname="com.africe.backend.product.service.ProductServiceTest" time="1.189"/>
+  <testcase name="listActiveProducts_withArtistId()" classname="com.africe.backend.product.service.ProductServiceTest" time="0.084"/>
+  <testcase name="getBySlug_found()" classname="com.africe.backend.product.service.ProductServiceTest" time="0.03"/>
+  <testcase name="listActiveProducts_sortByPriceDesc()" classname="com.africe.backend.product.service.ProductServiceTest" time="0.012"/>
+  <testcase name="listActiveProducts_returnsPage()" classname="com.africe.backend.product.service.ProductServiceTest" time="0.012"/>
+  <testcase name="listActiveProducts_sortByPriceAsc()" classname="com.africe.backend.product.service.ProductServiceTest" time="0.011"/>
+  <testcase name="listActiveProducts_withSearchAndArtist()" classname="com.africe.backend.product.service.ProductServiceTest" time="0.015"/>
+  <testcase name="getBySlug_notFound_throws()" classname="com.africe.backend.product.service.ProductServiceTest" time="0.009"/>
+  <testcase name="listActiveProducts_withSearch()" classname="com.africe.backend.product.service.ProductServiceTest" time="0.015"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

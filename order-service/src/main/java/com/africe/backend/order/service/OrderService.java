@@ -1,0 +1,266 @@
+package com.africe.backend.order.service;
+
+import com.africe.backend.common.dto.*;
+import com.africe.backend.common.exception.InsufficientStockException;
+import com.africe.backend.common.exception.ResourceNotFoundException;
+import com.africe.backend.common.model.*;
+import com.africe.backend.order.repository.OrderRepository;
+import com.africe.backend.order.repository.OutboxEventRepository;
+import com.africe.backend.product.repository.ProductRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Slf4j
+@Service
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final OutboxEventRepository outboxEventRepository;
+    private final ProductRepository productRepository;
+    private final MongoTemplate mongoTemplate;
+    private final ObjectMapper objectMapper;
+
+    public OrderService(OrderRepository orderRepository,
+                        OutboxEventRepository outboxEventRepository,
+                        ProductRepository productRepository,
+                        MongoTemplate mongoTemplate,
+                        ObjectMapper objectMapper) {
+        this.orderRepository = orderRepository;
+        this.outboxEventRepository = outboxEventRepository;
+        this.productRepository = productRepository;
+        this.mongoTemplate = mongoTemplate;
+        this.objectMapper = objectMapper;
+    }
+
+    public OrderResponse checkout(CheckoutRequest request) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        // Track decremented stock so we can rollback on partial failure
+        List<OrderItem> decrementedItems = new ArrayList<>();
+
+        try {
+            for (CheckoutItemRequest item : request.items()) {
+                Product product = productRepository.findById(item.productId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Product", "id", item.productId()));
+
+                // Only allow checkout of ACTIVE products
+                if (product.getStatus() != ProductStatus.ACTIVE) {
+                    throw new IllegalArgumentException("Product is not available: " + product.getTitle());
+                }
+
+                ProductVariant variant = product.getVariants().stream()
+                        .filter(v -> v.getSku().equals(item.sku()))
+                        .findFirst()
+                        .orElseThrow(() -> new ResourceNotFoundException("Variant", "sku", item.sku()));
+
+                // Atomic stock decrement — prevents negative stock at DB level
+                Query query = new Query(Criteria.where("id").is(product.getId())
+                        .and("variants.sku").is(item.sku())
+                        .and("variants.stock").gte(item.quantity()));
+                Update update = new Update().inc("variants.$.stock", -item.quantity());
+                var result = mongoTemplate.updateFirst(query, update, Product.class);
+
+                if (result.getModifiedCount() == 0) {
+                    throw new InsufficientStockException(item.sku());
+                }
+
+                // Track for potential rollback
+                decrementedItems.add(OrderItem.builder()
+                        .productId(product.getId()).sku(item.sku()).quantity(item.quantity()).build());
+
+                // Server-side price calculation (В1.2) — never trust client price
+                BigDecimal unitPrice = product.getBasePrice().add(variant.getPriceModifier());
+                BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(item.quantity()));
+                totalAmount = totalAmount.add(lineTotal);
+
+                // Build variant name from attributes
+                String variantName = variant.getAttributes() != null
+                        ? String.join(" / ", variant.getAttributes().values())
+                        : variant.getSku();
+
+                orderItems.add(OrderItem.builder()
+                        .productId(product.getId())
+                        .productTitle(product.getTitle())
+                        .sku(item.sku())
+                        .variantName(variantName)
+                        .quantity(item.quantity())
+                        .unitPrice(unitPrice)
+                        .build());
+            }
+            // Status depends on payment method
+            OrderStatus status = request.paymentMethod() == PaymentMethod.ONLINE
+                    ? OrderStatus.WAITING_PAYMENT
+                    : OrderStatus.PENDING;
+
+            ShippingDetailsRequest sr = request.shippingDetails();
+            ShippingDetails shippingDetails = ShippingDetails.builder()
+                    .city(sr.city())
+                    .cityRef(sr.cityRef())
+                    .warehouseRef(sr.warehouseRef())
+                    .warehouseDescription(sr.warehouseDescription())
+                    .carrier("Nova Poshta")
+                    .build();
+
+            Order order = Order.builder()
+                    .firstName(request.firstName())
+                    .lastName(request.lastName())
+                    .email(request.email())
+                    .phone(request.phone())
+                    .items(orderItems)
+                    .totalAmount(totalAmount)
+                    .status(status)
+                    .paymentMethod(request.paymentMethod())
+                    .shippingDetails(shippingDetails)
+                    .comment(request.comment())
+                    .accessToken(UUID.randomUUID().toString())
+                    .build();
+
+            order = orderRepository.save(order);
+
+            // Create outbox event for Telegram notification
+            createOutboxEvent(OutboxChannel.TELEGRAM, "ORDER_CREATED", order);
+
+            return toResponse(order);
+
+        } catch (Exception e) {
+            // Rollback already-decremented stock on any failure (including order save failure)
+            for (OrderItem dec : decrementedItems) {
+                try {
+                    Query q = new Query(Criteria.where("id").is(dec.getProductId())
+                            .and("variants.sku").is(dec.getSku()));
+                    Update u = new Update().inc("variants.$.stock", dec.getQuantity());
+                    mongoTemplate.updateFirst(q, u, Product.class);
+                } catch (Exception rollbackEx) {
+                    log.error("Failed to rollback stock for {} sku {}", dec.getProductId(), dec.getSku(), rollbackEx);
+                }
+            }
+            throw e;
+        }
+    }
+
+    public OrderResponse getOrder(String id, String accessToken) {
+        Order order;
+        if (accessToken != null && !accessToken.isBlank()) {
+            // Public access — requires valid accessToken
+            order = orderRepository.findByIdAndAccessToken(id, accessToken)
+                    .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        } else {
+            // No token — only allow if caller is authenticated admin
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated()
+                    || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                throw new ResourceNotFoundException("Order", "id", id);
+            }
+            order = orderRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        }
+        return toResponse(order);
+    }
+
+    public OrderResponse updateStatus(String id, OrderStatus newStatus, String trackingNumber) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+
+        if (newStatus == OrderStatus.SHIPPED && (trackingNumber == null || trackingNumber.isBlank())) {
+            throw new IllegalArgumentException("Tracking number is required for SHIPPED status");
+        }
+
+        if (newStatus == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.CANCELLED) {
+            restoreStock(order);
+        }
+
+        order.setStatus(newStatus);
+
+        if (trackingNumber != null && !trackingNumber.isBlank()) {
+            ShippingDetails sd = order.getShippingDetails();
+            if (sd == null) {
+                sd = new ShippingDetails();
+                order.setShippingDetails(sd);
+            }
+            sd.setTrackingNumber(trackingNumber);
+        }
+
+        order = orderRepository.save(order);
+
+        // Create outbox events based on status change
+        String eventType = "ORDER_" + newStatus.name();
+        if (newStatus == OrderStatus.CONFIRMED || newStatus == OrderStatus.SHIPPED
+                || newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.CANCELLED) {
+            createOutboxEvent(OutboxChannel.EMAIL, eventType, order);
+        }
+        if (newStatus == OrderStatus.CONFIRMED || newStatus == OrderStatus.SHIPPED) {
+            createOutboxEvent(OutboxChannel.TELEGRAM, eventType, order);
+        }
+
+        return toResponse(order);
+    }
+
+    public void restoreStock(Order order) {
+        for (OrderItem item : order.getItems()) {
+            Query query = new Query(Criteria.where("id").is(item.getProductId())
+                    .and("variants.sku").is(item.getSku()));
+            Update update = new Update().inc("variants.$.stock", item.getQuantity());
+            mongoTemplate.updateFirst(query, update, Product.class);
+        }
+    }
+
+    private void createOutboxEvent(OutboxChannel channel, String type, Order order) {
+        try {
+            // Strip accessToken from outbox payloads — it should only be in checkout response
+            OrderResponse resp = toResponse(order);
+            OrderResponse safeResp = new OrderResponse(
+                    resp.id(), resp.firstName(), resp.lastName(), resp.email(), resp.phone(),
+                    resp.items(), resp.totalAmount(), resp.status(), resp.paymentMethod(),
+                    resp.shippingDetails(), resp.comment(), null, resp.createdAt(), resp.updatedAt());
+            String payload = objectMapper.writeValueAsString(safeResp);
+            OutboxEvent event = OutboxEvent.builder()
+                    .channel(channel)
+                    .type(type)
+                    .payload(payload)
+                    .build();
+            outboxEventRepository.save(event);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize order for outbox event", e);
+        }
+    }
+
+    public OrderResponse toResponse(Order order) {
+        List<OrderItemResponse> items = order.getItems() != null
+                ? order.getItems().stream()
+                .map(i -> new OrderItemResponse(
+                        i.getProductId(), i.getProductTitle(), i.getSku(),
+                        i.getVariantName(), i.getQuantity(), i.getUnitPrice()))
+                .toList()
+                : List.of();
+
+        ShippingDetailsResponse shipping = null;
+        if (order.getShippingDetails() != null) {
+            ShippingDetails sd = order.getShippingDetails();
+            shipping = new ShippingDetailsResponse(
+                    sd.getCity(), sd.getCityRef(), sd.getWarehouseRef(),
+                    sd.getWarehouseDescription(), sd.getTrackingNumber(), sd.getCarrier());
+        }
+
+        return new OrderResponse(
+                order.getId(), order.getFirstName(), order.getLastName(),
+                order.getEmail(), order.getPhone(), items, order.getTotalAmount(),
+                order.getStatus(), order.getPaymentMethod(), shipping,
+                order.getComment(), order.getAccessToken(),
+                order.getCreatedAt(), order.getUpdatedAt());
+    }
+}

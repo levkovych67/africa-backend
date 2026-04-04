@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.africe.backend.order.service.OrderServiceTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-04-04T14:38:34" hostname="LSD-GRIM" time="0.294">
+  <properties/>
+  <testcase name="checkout_productNotFound_throws()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.104"/>
+  <testcase name="updateStatus_shipped_requiresTrackingNumber()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.008"/>
+  <testcase name="checkout_variantNotFound_throws()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.019"/>
+  <testcase name="checkout_ONLINE_createsWaitingPaymentOrder()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.088"/>
+  <testcase name="checkout_COD_createsPendingOrder()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.014"/>
+  <testcase name="updateStatus_shipped_setsTrackingNumber()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.009"/>
+  <testcase name="checkout_insufficientStock_throws()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.008"/>
+  <testcase name="getOrder_withAccessToken()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.006"/>
+  <testcase name="checkout_serverSidePriceCalculation()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.01"/>
+  <testcase name="updateStatus_cancelled_restoresStock()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.009"/>
+  <testcase name="getOrder_wrongToken_throws()" classname="com.africe.backend.order.service.OrderServiceTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

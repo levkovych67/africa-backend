@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.africe.backend.order.payment.PaymentControllerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-04-04T14:38:31" hostname="LSD-GRIM" time="2.696">
+  <properties/>
+  <testcase name="callback_successPayment_createsOutboxEvent()" classname="com.africe.backend.order.payment.PaymentControllerTest" time="2.613"/>
+  <testcase name="callback_failedPayment_cancelsAndRestoresStock()" classname="com.africe.backend.order.payment.PaymentControllerTest" time="0.016"/>
+  <testcase name="createPayment_success()" classname="com.africe.backend.order.payment.PaymentControllerTest" time="0.021"/>
+  <testcase name="createPayment_orderNotWaiting_throws()" classname="com.africe.backend.order.payment.PaymentControllerTest" time="0.026"/>
+  <testcase name="callback_noSignature_returnsBadRequest()" classname="com.africe.backend.order.payment.PaymentControllerTest" time="0.006"/>
+  <testcase name="callback_invalidSignature_returnsBadRequest()" classname="com.africe.backend.order.payment.PaymentControllerTest" time="0.006"/>
+  <system-out><![CDATA[17:38:34.313 [Test worker] INFO com.africe.backend.order.payment.PaymentController -- Payment successful for order #o1
+17:38:34.381 [Test worker] INFO com.africe.backend.order.payment.PaymentController -- Payment failed/expired for order #o1, stock restored
+17:38:34.441 [Test worker] WARN com.africe.backend.order.payment.PaymentController -- Invalid Monobank webhook signature
+17:38:34.449 [Test worker] WARN com.africe.backend.order.payment.PaymentController -- Invalid Monobank webhook signature
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

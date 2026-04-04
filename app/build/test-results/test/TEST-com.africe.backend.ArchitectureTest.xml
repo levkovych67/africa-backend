@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.africe.backend.ArchitectureTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-04-04T14:38:09" hostname="LSD-GRIM" time="0.317">
+  <properties/>
+  <testcase name="services_should_not_depend_on_controllers()" classname="com.africe.backend.ArchitectureTest" time="0.209"/>
+  <testcase name="models_should_not_depend_on_services()" classname="com.africe.backend.ArchitectureTest" time="0.053"/>
+  <testcase name="models_should_not_depend_on_controllers()" classname="com.africe.backend.ArchitectureTest" time="0.009"/>
+  <testcase name="dto_should_not_depend_on_services()" classname="com.africe.backend.ArchitectureTest" time="0.022"/>
+  <testcase name="models_should_not_depend_on_repositories()" classname="com.africe.backend.ArchitectureTest" time="0.012"/>
+  <system-out><![CDATA[17:38:04.906 [Test worker] INFO com.tngtech.archunit.core.PluginLoader -- Detected Java version 22.0.1
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

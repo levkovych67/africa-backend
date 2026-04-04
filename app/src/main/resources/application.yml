@@ -1,0 +1,72 @@
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/africa}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USER:}
+    password: ${GMAIL_APP_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/plain
+    min-response-size: 1024
+
+jwt:
+  secret: ${JWT_SECRET:change-me-in-production-must-be-at-least-32-chars}
+  access-token-expiration: 3600000      # 1 hour
+  refresh-token-expiration: 604800000   # 7 days
+
+nova-poshta:
+  api-key: ${NOVA_POSHTA_API_KEY:}
+  base-url: https://api.novaposhta.ua/v2.0/json/
+
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN:}
+  chat-ids: ${TELEGRAM_CHAT_ID:}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY:}
+  secret-key: ${AWS_SECRET_KEY:}
+  s3:
+    bucket: ${AWS_S3_BUCKET:}
+    region: ${AWS_S3_REGION:eu-central-1}
+
+monobank:
+  token: ${MONOBANK_TOKEN:}
+  webhook-base-url: ${WEBHOOK_BASE_URL:http://localhost:8080}
+
+mail:
+  from: ${GMAIL_USER:noreply@africe.com}
+  from-name: ${GMAIL_USER_NAME:AFRICA}
+
+frontend:
+  url: ${FRONTEND_URL:http://localhost:3000}
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+seed:
+  enabled: ${SEED_ENABLED:false}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      novaPoshta:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+      telegram:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+      monobank:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
