@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.africe.backend.auth.controller.AuthControllerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:05:33" hostname="LSD-GRIM" time="3.147">
+<testsuite name="com.africe.backend.auth.controller.AuthControllerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-04-04T17:05:34" hostname="LSD-GRIM" time="2.914">
   <properties/>
-  <testcase name="login_wrongPassword_throws()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="2.984"/>
-  <testcase name="login_success()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="0.102"/>
-  <testcase name="login_wrongEmail_throws()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="0.013"/>
-  <testcase name="refresh_expiredToken_throws()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="0.018"/>
-  <testcase name="refresh_success()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="0.016"/>
+  <testcase name="login_wrongPassword_throws()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="2.772"/>
+  <testcase name="login_success()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="0.099"/>
+  <testcase name="login_wrongEmail_throws()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="0.011"/>
+  <testcase name="refresh_expiredToken_throws()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="0.012"/>
+  <testcase name="refresh_success()" classname="com.africe.backend.auth.controller.AuthControllerTest" time="0.012"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

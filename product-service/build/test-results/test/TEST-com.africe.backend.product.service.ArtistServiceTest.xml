@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.africe.backend.product.service.ArtistServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:14:50" hostname="LSD-GRIM" time="2.996">
+<testsuite name="com.africe.backend.product.service.ArtistServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-04T17:05:50" hostname="LSD-GRIM" time="2.444">
   <properties/>
-  <testcase name="getBySlug_found()" classname="com.africe.backend.product.service.ArtistServiceTest" time="2.919"/>
-  <testcase name="listAll_returnsAllArtists()" classname="com.africe.backend.product.service.ArtistServiceTest" time="0.053"/>
-  <testcase name="getBySlug_notFound_throws()" classname="com.africe.backend.product.service.ArtistServiceTest" time="0.018"/>
+  <testcase name="getBySlug_found()" classname="com.africe.backend.product.service.ArtistServiceTest" time="2.359"/>
+  <testcase name="listAll_returnsAllArtists()" classname="com.africe.backend.product.service.ArtistServiceTest" time="0.059"/>
+  <testcase name="getBySlug_notFound_throws()" classname="com.africe.backend.product.service.ArtistServiceTest" time="0.022"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

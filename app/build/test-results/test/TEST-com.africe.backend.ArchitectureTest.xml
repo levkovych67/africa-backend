@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.africe.backend.ArchitectureTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:14:37" hostname="LSD-GRIM" time="0.466">
+<testsuite name="com.africe.backend.ArchitectureTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-04-04T17:05:31" hostname="LSD-GRIM" time="0.393">
   <properties/>
-  <testcase name="services_should_not_depend_on_controllers()" classname="com.africe.backend.ArchitectureTest" time="0.309"/>
-  <testcase name="models_should_not_depend_on_services()" classname="com.africe.backend.ArchitectureTest" time="0.063"/>
-  <testcase name="models_should_not_depend_on_controllers()" classname="com.africe.backend.ArchitectureTest" time="0.018"/>
-  <testcase name="dto_should_not_depend_on_services()" classname="com.africe.backend.ArchitectureTest" time="0.038"/>
-  <testcase name="models_should_not_depend_on_repositories()" classname="com.africe.backend.ArchitectureTest" time="0.033"/>
-  <system-out><![CDATA[19:14:30.572 [Test worker] INFO com.tngtech.archunit.core.PluginLoader -- Detected Java version 17.0.11
+  <testcase name="services_should_not_depend_on_controllers()" classname="com.africe.backend.ArchitectureTest" time="0.279"/>
+  <testcase name="models_should_not_depend_on_services()" classname="com.africe.backend.ArchitectureTest" time="0.062"/>
+  <testcase name="models_should_not_depend_on_controllers()" classname="com.africe.backend.ArchitectureTest" time="0.009"/>
+  <testcase name="dto_should_not_depend_on_services()" classname="com.africe.backend.ArchitectureTest" time="0.029"/>
+  <testcase name="models_should_not_depend_on_repositories()" classname="com.africe.backend.ArchitectureTest" time="0.01"/>
+  <system-out><![CDATA[20:05:26.207 [Test worker] INFO com.tngtech.archunit.core.PluginLoader -- Detected Java version 17.0.11
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

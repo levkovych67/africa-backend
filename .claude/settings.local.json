@@ -7,7 +7,8 @@
       "Bash(java -version)",
       "Bash(javac --release 21 -version)",
       "Bash(javac --release 22 -version)",
-      "Bash(./gradlew :admin-service:compileJava)"
+      "Bash(./gradlew :admin-service:compileJava)",
+      "Bash(./gradlew clean:*)"
     ]
   }
 }
