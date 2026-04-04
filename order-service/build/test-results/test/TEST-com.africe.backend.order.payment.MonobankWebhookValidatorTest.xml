@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.africe.backend.order.payment.MonobankWebhookValidatorTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-04T14:38:28" hostname="LSD-GRIM" time="2.747">
+<testsuite name="com.africe.backend.order.payment.MonobankWebhookValidatorTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:05:43" hostname="LSD-GRIM" time="2.967">
   <properties/>
-  <testcase name="validateSignature_validSignature_returnsTrue()" classname="com.africe.backend.order.payment.MonobankWebhookValidatorTest" time="2.687"/>
-  <testcase name="validateSignature_malformedBase64_returnsFalse()" classname="com.africe.backend.order.payment.MonobankWebhookValidatorTest" time="0.03"/>
-  <testcase name="validateSignature_invalidSignature_returnsFalse()" classname="com.africe.backend.order.payment.MonobankWebhookValidatorTest" time="0.013"/>
-  <system-out><![CDATA[17:38:31.652 [Test worker] ERROR com.africe.backend.order.payment.MonobankWebhookValidator -- Failed to validate Monobank webhook signature: Illegal base64 character 2d
-17:38:31.678 [Test worker] ERROR com.africe.backend.order.payment.MonobankWebhookValidator -- Failed to validate Monobank webhook signature: Invalid encoding for signature
+  <testcase name="validateSignature_validSignature_returnsTrue()" classname="com.africe.backend.order.payment.MonobankWebhookValidatorTest" time="2.903"/>
+  <testcase name="validateSignature_malformedBase64_returnsFalse()" classname="com.africe.backend.order.payment.MonobankWebhookValidatorTest" time="0.039"/>
+  <testcase name="validateSignature_invalidSignature_returnsFalse()" classname="com.africe.backend.order.payment.MonobankWebhookValidatorTest" time="0.014"/>
+  <system-out><![CDATA[19:05:46.451 [Test worker] ERROR com.africe.backend.order.payment.MonobankWebhookValidator -- Failed to validate Monobank webhook signature: Illegal base64 character 2d
+19:05:46.482 [Test worker] ERROR com.africe.backend.order.payment.MonobankWebhookValidator -- Failed to validate Monobank webhook signature: Invalid encoding for signature
 ]]></system-out>
-  <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build what is described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#0.3
-WARNING: A Java agent has been loaded dynamically (C:\Users\yevhe\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.15.11\a38b16385e867f59a641330f0362ebe742788ed8\byte-buddy-agent-1.15.11.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-]]></system-err>
+  <system-err><![CDATA[]]></system-err>
 </testsuite>

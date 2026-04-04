@@ -60,8 +60,8 @@ class DashboardServiceTest {
         assertThat(stats.totalRevenue()).isEqualByComparingTo(BigDecimal.valueOf(1000));
         assertThat(stats.totalOrders()).isEqualTo(1);
         assertThat(stats.topProducts()).hasSize(1);
-        assertThat(stats.topProducts().getFirst().productTitle()).isEqualTo("T-Shirt");
-        assertThat(stats.topProducts().getFirst().totalQuantity()).isEqualTo(2);
+        assertThat(stats.topProducts().get(0).productTitle()).isEqualTo("T-Shirt");
+        assertThat(stats.topProducts().get(0).totalQuantity()).isEqualTo(2);
         assertThat(stats.revenueByDay()).hasSize(1);
     }
 }

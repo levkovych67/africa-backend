@@ -18,9 +18,8 @@ subprojects {
     apply(plugin = "io.spring.dependency-management")
 
     java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(22))
-        }
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     the<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension>().apply {

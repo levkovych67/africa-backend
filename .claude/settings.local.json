@@ -3,7 +3,11 @@
     "allow": [
       "Bash(git ls-tree:*)",
       "Bash(./gradlew compileJava)",
-      "Bash(./gradlew test:*)"
+      "Bash(./gradlew test:*)",
+      "Bash(java -version)",
+      "Bash(javac --release 21 -version)",
+      "Bash(javac --release 22 -version)",
+      "Bash(./gradlew :admin-service:compileJava)"
     ]
   }
 }

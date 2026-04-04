@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.africe.backend.auth.service.JwtServiceTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-04-04T14:38:20" hostname="LSD-GRIM" time="1.046">
+<testsuite name="com.africe.backend.auth.service.JwtServiceTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:05:37" hostname="LSD-GRIM" time="1.322">
   <properties/>
-  <testcase name="extractEmail_returnsCorrectClaim()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.991"/>
-  <testcase name="isTokenValid_returnsFalseForTamperedToken()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.006"/>
-  <testcase name="generateAccessToken_returnsValidToken()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.007"/>
-  <testcase name="extractUserId_returnsCorrectSubject()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.005"/>
-  <testcase name="isTokenValid_returnsFalseForWrongSecret()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.006"/>
-  <testcase name="expiredToken_isInvalid()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.011"/>
+  <testcase name="extractEmail_returnsCorrectClaim()" classname="com.africe.backend.auth.service.JwtServiceTest" time="1.282"/>
+  <testcase name="isTokenValid_returnsFalseForTamperedToken()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.007"/>
+  <testcase name="generateAccessToken_returnsValidToken()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.004"/>
+  <testcase name="extractUserId_returnsCorrectSubject()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.003"/>
+  <testcase name="isTokenValid_returnsFalseForWrongSecret()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.004"/>
+  <testcase name="expiredToken_isInvalid()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.008"/>
   <testcase name="isTokenValid_returnsFalseForGarbage()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.002"/>
-  <testcase name="generateRefreshToken_returnsUUID()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.005"/>
+  <testcase name="generateRefreshToken_returnsUUID()" classname="com.africe.backend.auth.service.JwtServiceTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

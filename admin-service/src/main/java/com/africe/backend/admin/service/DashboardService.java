@@ -56,7 +56,7 @@ public class DashboardService {
                 .entrySet().stream()
                 .map(entry -> {
                     List<OrderItem> items = entry.getValue();
-                    String title = items.getFirst().getProductTitle();
+                    String title = items.get(0).getProductTitle();
                     long qty = items.stream().mapToLong(OrderItem::getQuantity).sum();
                     BigDecimal rev = items.stream()
                             .map(i -> i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity())))

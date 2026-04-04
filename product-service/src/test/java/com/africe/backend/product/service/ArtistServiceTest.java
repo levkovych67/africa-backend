@@ -36,8 +36,8 @@ class ArtistServiceTest {
         List<ArtistResponse> result = artistService.listAll();
 
         assertThat(result).hasSize(1);
-        assertThat(result.getFirst().slug()).isEqualTo("mc-artist");
-        assertThat(result.getFirst().name()).isEqualTo("MC Artist");
+        assertThat(result.get(0).slug()).isEqualTo("mc-artist");
+        assertThat(result.get(0).name()).isEqualTo("MC Artist");
     }
 
     @Test

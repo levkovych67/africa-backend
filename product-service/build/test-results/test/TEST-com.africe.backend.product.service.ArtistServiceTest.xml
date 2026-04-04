@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.africe.backend.product.service.ArtistServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-04T14:38:42" hostname="LSD-GRIM" time="2.498">
+<testsuite name="com.africe.backend.product.service.ArtistServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:05:54" hostname="LSD-GRIM" time="3.225">
   <properties/>
-  <testcase name="getBySlug_found()" classname="com.africe.backend.product.service.ArtistServiceTest" time="2.443"/>
-  <testcase name="listAll_returnsAllArtists()" classname="com.africe.backend.product.service.ArtistServiceTest" time="0.037"/>
-  <testcase name="getBySlug_notFound_throws()" classname="com.africe.backend.product.service.ArtistServiceTest" time="0.012"/>
+  <testcase name="getBySlug_found()" classname="com.africe.backend.product.service.ArtistServiceTest" time="3.15"/>
+  <testcase name="listAll_returnsAllArtists()" classname="com.africe.backend.product.service.ArtistServiceTest" time="0.058"/>
+  <testcase name="getBySlug_notFound_throws()" classname="com.africe.backend.product.service.ArtistServiceTest" time="0.013"/>
   <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build what is described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#0.3
-WARNING: A Java agent has been loaded dynamically (C:\Users\yevhe\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.15.11\a38b16385e867f59a641330f0362ebe742788ed8\byte-buddy-agent-1.15.11.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-]]></system-err>
+  <system-err><![CDATA[]]></system-err>
 </testsuite>

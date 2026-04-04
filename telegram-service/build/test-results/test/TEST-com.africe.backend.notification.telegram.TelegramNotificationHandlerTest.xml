@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.africe.backend.notification.telegram.TelegramNotificationHandlerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-04T14:38:56" hostname="LSD-GRIM" time="1.121">
+<testsuite name="com.africe.backend.notification.telegram.TelegramNotificationHandlerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:06:08" hostname="LSD-GRIM" time="1.321">
   <properties/>
-  <testcase name="handleOrderCreated_sendsMessageWithButtons()" classname="com.africe.backend.notification.telegram.TelegramNotificationHandlerTest" time="1.031"/>
-  <testcase name="handleOrderConfirmed_sendsConfirmation()" classname="com.africe.backend.notification.telegram.TelegramNotificationHandlerTest" time="0.039"/>
-  <testcase name="handleOrderShipped_sendsTrackingNumber()" classname="com.africe.backend.notification.telegram.TelegramNotificationHandlerTest" time="0.044"/>
+  <testcase name="handleOrderCreated_sendsMessageWithButtons()" classname="com.africe.backend.notification.telegram.TelegramNotificationHandlerTest" time="1.265"/>
+  <testcase name="handleOrderConfirmed_sendsConfirmation()" classname="com.africe.backend.notification.telegram.TelegramNotificationHandlerTest" time="0.03"/>
+  <testcase name="handleOrderShipped_sendsTrackingNumber()" classname="com.africe.backend.notification.telegram.TelegramNotificationHandlerTest" time="0.024"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

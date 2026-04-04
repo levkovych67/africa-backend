@@ -67,7 +67,7 @@ class ProductServiceTest {
         Page<ProductResponse> result = productService.listActiveProducts(null, null, "newest", 0, 20);
 
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().getFirst().slug()).isEqualTo("test-tshirt");
+        assertThat(result.getContent().get(0).slug()).isEqualTo("test-tshirt");
     }
 
     @Test
@@ -120,7 +120,7 @@ class ProductServiceTest {
         assertThat(response.title()).isEqualTo("Test T-Shirt");
         assertThat(response.basePrice()).isEqualByComparingTo(BigDecimal.valueOf(500));
         assertThat(response.variants()).hasSize(1);
-        assertThat(response.variants().getFirst().sku()).isEqualTo("TSHIRT-M");
+        assertThat(response.variants().get(0).sku()).isEqualTo("TSHIRT-M");
     }
 
     @Test

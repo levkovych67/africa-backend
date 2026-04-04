@@ -260,6 +260,6 @@ class OrderServiceTest {
 
         // (1000 + 200) * 3 = 3600
         assertThat(response.totalAmount()).isEqualByComparingTo(BigDecimal.valueOf(3600));
-        assertThat(response.items().getFirst().unitPrice()).isEqualByComparingTo(BigDecimal.valueOf(1200));
+        assertThat(response.items().get(0).unitPrice()).isEqualByComparingTo(BigDecimal.valueOf(1200));
     }
 }
