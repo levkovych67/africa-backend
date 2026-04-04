@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.africe.backend.admin.controller.AdminOrderControllerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:05:10" hostname="LSD-GRIM" time="3.465">
+<testsuite name="com.africe.backend.admin.controller.AdminOrderControllerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-04T16:14:21" hostname="LSD-GRIM" time="4.356">
   <properties/>
-  <testcase name="listOrders_withStatusFilter()" classname="com.africe.backend.admin.controller.AdminOrderControllerTest" time="3.196"/>
-  <testcase name="updateStatus_delegatesToService()" classname="com.africe.backend.admin.controller.AdminOrderControllerTest" time="0.221"/>
-  <testcase name="listOrders_noFilters_returnsAll()" classname="com.africe.backend.admin.controller.AdminOrderControllerTest" time="0.026"/>
-  <testcase name="listOrders_withSearchFilter()" classname="com.africe.backend.admin.controller.AdminOrderControllerTest" time="0.01"/>
+  <testcase name="listOrders_withStatusFilter()" classname="com.africe.backend.admin.controller.AdminOrderControllerTest" time="4.057"/>
+  <testcase name="updateStatus_delegatesToService()" classname="com.africe.backend.admin.controller.AdminOrderControllerTest" time="0.235"/>
+  <testcase name="listOrders_noFilters_returnsAll()" classname="com.africe.backend.admin.controller.AdminOrderControllerTest" time="0.036"/>
+  <testcase name="listOrders_withSearchFilter()" classname="com.africe.backend.admin.controller.AdminOrderControllerTest" time="0.014"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

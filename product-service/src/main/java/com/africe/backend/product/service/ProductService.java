@@ -132,10 +132,19 @@ public class ProductService {
 
     private Pageable buildPageable(String sort, int page, int size) {
         Sort sorting = switch (sort != null ? sort : "") {
-            case "price_asc" -> Sort.by(Sort.Direction.ASC, "basePrice");
-            case "price_desc" -> Sort.by(Sort.Direction.DESC, "basePrice");
-            case "newest" -> Sort.by(Sort.Direction.DESC, "createdAt");
-            default -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case "price_asc", "basePrice,asc" -> Sort.by(Sort.Direction.ASC, "basePrice");
+            case "price_desc", "basePrice,desc" -> Sort.by(Sort.Direction.DESC, "basePrice");
+            case "newest", "createdAt,desc" -> Sort.by(Sort.Direction.DESC, "createdAt");
+            default -> {
+                // Support generic "field,direction" format
+                if (sort != null && sort.contains(",")) {
+                    String[] parts = sort.split(",", 2);
+                    Sort.Direction dir = "asc".equalsIgnoreCase(parts[1])
+                            ? Sort.Direction.ASC : Sort.Direction.DESC;
+                    yield Sort.by(dir, parts[0]);
+                }
+                yield Sort.by(Sort.Direction.DESC, "createdAt");
+            }
         };
         return PageRequest.of(page, size, sorting);
     }

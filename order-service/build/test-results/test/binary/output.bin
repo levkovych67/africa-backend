@@ -1,7 +1,7 @@
-ª19:05:46.451 [Test worker] ERROR com.africe.backend.order.payment.MonobankWebhookValidator -- Failed to validate Monobank webhook signature: Illegal base64 character 2d
-­19:05:46.482 [Test worker] ERROR com.africe.backend.order.payment.MonobankWebhookValidator -- Failed to validate Monobank webhook signature: Invalid encoding for signature
-x19:05:49.535 [Test worker] INFO com.africe.backend.order.payment.PaymentController -- Payment successful for order #o1
-Œ19:05:49.589 [Test worker] INFO com.africe.backend.order.payment.PaymentController -- Payment failed/expired for order #o1, stock restored
+ª19:14:44.637 [Test worker] ERROR com.africe.backend.order.payment.MonobankWebhookValidator -- Failed to validate Monobank webhook signature: Illegal base64 character 2d
+­19:14:44.677 [Test worker] ERROR com.africe.backend.order.payment.MonobankWebhookValidator -- Failed to validate Monobank webhook signature: Invalid encoding for signature
+x19:14:47.472 [Test worker] INFO com.africe.backend.order.payment.PaymentController -- Payment successful for order #o1
+Œ19:14:47.534 [Test worker] INFO com.africe.backend.order.payment.PaymentController -- Payment failed/expired for order #o1, stock restored
 
-z19:05:49.675 [Test worker] WARN com.africe.backend.order.payment.PaymentController -- Invalid Monobank webhook signature
-z19:05:49.687 [Test worker] WARN com.africe.backend.order.payment.PaymentController -- Invalid Monobank webhook signature
+z19:14:47.598 [Test worker] WARN com.africe.backend.order.payment.PaymentController -- Invalid Monobank webhook signature
+z19:14:47.608 [Test worker] WARN com.africe.backend.order.payment.PaymentController -- Invalid Monobank webhook signature
