@@ -15,4 +15,5 @@ public class NovaWarehouseResponse {
     private String description;
     private String number;
     private String shortAddress;
+    private String type;
 }

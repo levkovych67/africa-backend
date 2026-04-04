@@ -27,8 +27,7 @@ public class NovaPoshtaController {
 
     @GetMapping("/warehouses")
     public List<NovaWarehouseResponse> getWarehouses(
-            @RequestParam(value = "cityRef") String cityRef,
-            @RequestParam(value = "limit", defaultValue = "50") int limit) {
-        return novaPoshtaClient.getWarehouses(cityRef, limit);
+            @RequestParam(value = "cityRef") String cityRef) {
+        return novaPoshtaClient.getWarehouses(cityRef);
     }
 }

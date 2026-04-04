@@ -13,6 +13,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -79,14 +80,14 @@ public class NovaPoshtaClient {
 
     @Cacheable(value = "novaPoshtaWarehouses", key = "#cityRef")
     @CircuitBreaker(name = "novaPoshta", fallbackMethod = "getWarehousesFallback")
-    public List<NovaWarehouseResponse> getWarehouses(String cityRef, int limit) {
+    public List<NovaWarehouseResponse> getWarehouses(String cityRef) {
         Map<String, Object> body = Map.of(
                 "apiKey", properties.getApiKey(),
                 "modelName", "Address",
                 "calledMethod", "getWarehouses",
                 "methodProperties", Map.of(
                         "CityRef", cityRef,
-                        "Limit", String.valueOf(limit)
+                        "Limit", "3000"
                 )
         );
 
@@ -104,13 +105,24 @@ public class NovaPoshtaClient {
 
             List<NovaWarehouseResponse> warehouses = new ArrayList<>();
             for (JsonNode item : root.path("data")) {
+                String description = item.path("Description").asText();
+                boolean isPostbox = description.toLowerCase().contains("поштомат");
                 warehouses.add(NovaWarehouseResponse.builder()
                         .ref(item.path("Ref").asText())
-                        .description(item.path("Description").asText())
+                        .description(description)
                         .number(item.path("Number").asText())
                         .shortAddress(item.path("ShortAddress").asText())
+                        .type(isPostbox ? "postbox" : "warehouse")
                         .build());
             }
+
+            warehouses.sort(Comparator
+                    .comparing((NovaWarehouseResponse w) -> "postbox".equals(w.getType()))
+                    .thenComparing(w -> {
+                        try { return Integer.parseInt(w.getNumber()); }
+                        catch (NumberFormatException e) { return Integer.MAX_VALUE; }
+                    }));
+
             return warehouses;
         } catch (Exception e) {
             log.error("Nova Poshta getWarehouses parse error: {}", e.getMessage(), e);
@@ -123,7 +135,7 @@ public class NovaPoshtaClient {
         return Collections.emptyList();
     }
 
-    private List<NovaWarehouseResponse> getWarehousesFallback(String cityRef, int limit, Throwable t) {
+    private List<NovaWarehouseResponse> getWarehousesFallback(String cityRef, Throwable t) {
         log.warn("Nova Poshta circuit breaker open for getWarehouses: {}", t.getMessage());
         return Collections.emptyList();
     }
