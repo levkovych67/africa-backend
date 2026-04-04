@@ -81,39 +81,54 @@ public class NovaPoshtaClient {
     @Cacheable(value = "novaPoshtaWarehouses", key = "#cityRef")
     @CircuitBreaker(name = "novaPoshta", fallbackMethod = "getWarehousesFallback")
     public List<NovaWarehouseResponse> getWarehouses(String cityRef) {
-        Map<String, Object> body = Map.of(
-                "apiKey", properties.getApiKey(),
-                "modelName", "Address",
-                "calledMethod", "getWarehouses",
-                "methodProperties", Map.of(
-                        "CityRef", cityRef,
-                        "Limit", "3000"
-                )
-        );
-
-        String json = restClient.post()
-                .body(body)
-                .retrieve()
-                .body(String.class);
-
         try {
-            JsonNode root = objectMapper.readTree(json);
-            if (!root.path("success").asBoolean(false)) {
-                log.warn("Nova Poshta getWarehouses failed: {}", root.path("errors"));
-                return Collections.emptyList();
-            }
-
             List<NovaWarehouseResponse> warehouses = new ArrayList<>();
-            for (JsonNode item : root.path("data")) {
-                String description = item.path("Description").asText();
-                boolean isPostbox = description.toLowerCase().contains("поштомат");
-                warehouses.add(NovaWarehouseResponse.builder()
-                        .ref(item.path("Ref").asText())
-                        .description(description)
-                        .number(item.path("Number").asText())
-                        .shortAddress(item.path("ShortAddress").asText())
-                        .type(isPostbox ? "postbox" : "warehouse")
-                        .build());
+            int page = 1;
+
+            while (true) {
+                Map<String, Object> body = Map.of(
+                        "apiKey", properties.getApiKey(),
+                        "modelName", "Address",
+                        "calledMethod", "getWarehouses",
+                        "methodProperties", Map.of(
+                                "CityRef", cityRef,
+                                "Page", String.valueOf(page),
+                                "Limit", "150"
+                        )
+                );
+
+                String json = restClient.post()
+                        .body(body)
+                        .retrieve()
+                        .body(String.class);
+
+                JsonNode root = objectMapper.readTree(json);
+                if (!root.path("success").asBoolean(false)) {
+                    log.warn("Nova Poshta getWarehouses failed: {}", root.path("errors"));
+                    break;
+                }
+
+                JsonNode data = root.path("data");
+                if (!data.isArray() || data.isEmpty()) {
+                    break;
+                }
+
+                for (JsonNode item : data) {
+                    String description = item.path("Description").asText();
+                    boolean isPostbox = description.toLowerCase().contains("поштомат");
+                    warehouses.add(NovaWarehouseResponse.builder()
+                            .ref(item.path("Ref").asText())
+                            .description(description)
+                            .number(item.path("Number").asText())
+                            .shortAddress(item.path("ShortAddress").asText())
+                            .type(isPostbox ? "postbox" : "warehouse")
+                            .build());
+                }
+
+                if (data.size() < 150) {
+                    break;
+                }
+                page++;
             }
 
             warehouses.sort(Comparator
