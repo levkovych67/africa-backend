@@ -1,0 +1,15 @@
+[Unit]
+Description=GitHub Deploy Webhook
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/africa
+ExecStart=/usr/bin/python3 /opt/africa/webhook-server.py
+Environment=WEBHOOK_SECRET=
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
