@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/admin/images")
+@RequestMapping("/api/v1/admin/products/images")
 public class ImageController {
 
     private final S3PresignService s3PresignService;
@@ -19,7 +19,7 @@ public class ImageController {
         this.s3PresignService = s3PresignService;
     }
 
-    @PostMapping("/presigned-url")
+    @PostMapping("/presign")
     public PresignResponse getPresignedUrl(@Valid @RequestBody PresignRequest request) {
         return s3PresignService.generatePresignedUrl(request);
     }

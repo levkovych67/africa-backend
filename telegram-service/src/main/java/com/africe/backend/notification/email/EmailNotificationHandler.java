@@ -79,6 +79,7 @@ public class EmailNotificationHandler {
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
             helper.addInline("logo", new ClassPathResource("logo.png"), "image/png");
+            helper.addInline("zebra", new ClassPathResource("zebra.png"), "image/png");
             mailSender.send(message);
             log.info("Email sent to {} \u2014 {}", to, subject);
         } catch (Exception e) {
@@ -157,7 +158,7 @@ public class EmailNotificationHandler {
         sb.append("</td></tr>");
 
         // ── BODY ──
-        sb.append("<tr><td style=\"padding:32px;background-color:#FFFFFF;\">");
+        sb.append("<tr><td style=\"padding:32px;background-color:#FFFFFF;background-image:url('cid:zebra');background-size:cover;background-position:center;background-repeat:no-repeat;\">");
 
         // Order title + date
         sb.append("<p style=\"font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#1C1917;margin:0 0 4px 0;letter-spacing:-0.01em;\">");
