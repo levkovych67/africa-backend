@@ -13,6 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.Normalizer;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/admin/products")
 public class AdminProductController {
@@ -60,7 +63,42 @@ public class AdminProductController {
         if (product.getStatus() == null) {
             product.setStatus(ProductStatus.DRAFT);
         }
+        if (product.getSlug() == null || product.getSlug().isBlank()) {
+            product.setSlug(generateSlug(product.getTitle()));
+        }
         return productService.toResponse(productRepository.save(product));
+    }
+
+    private String generateSlug(String title) {
+        if (title == null || title.isBlank()) return UUID.randomUUID().toString();
+        String transliterated = transliterate(title.toLowerCase());
+        String slug = transliterated
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("[\\s]+", "-")
+                .replaceAll("-+", "-")
+                .replaceAll("^-|-$", "");
+        if (slug.isEmpty()) return UUID.randomUUID().toString();
+        return slug + "-" + UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    private static final String[][] UA_TRANSLIT = {
+            {"зг", "zgh"}, {"ьо", "io"}, {"ьї", "ii"},
+            {"а", "a"}, {"б", "b"}, {"в", "v"}, {"г", "h"}, {"ґ", "g"},
+            {"д", "d"}, {"е", "e"}, {"є", "ye"}, {"ж", "zh"}, {"з", "z"},
+            {"и", "y"}, {"і", "i"}, {"ї", "yi"}, {"й", "i"}, {"к", "k"},
+            {"л", "l"}, {"м", "m"}, {"н", "n"}, {"о", "o"}, {"п", "p"},
+            {"р", "r"}, {"с", "s"}, {"т", "t"}, {"у", "u"}, {"ф", "f"},
+            {"х", "kh"}, {"ц", "ts"}, {"ч", "ch"}, {"ш", "sh"}, {"щ", "shch"},
+            {"ь", ""}, {"ю", "yu"}, {"я", "ya"}, {"'", ""},
+            {"ъ", ""}, {"ы", "y"}, {"э", "e"},
+    };
+
+    private static String transliterate(String input) {
+        String result = input;
+        for (String[] pair : UA_TRANSLIT) {
+            result = result.replace(pair[0], pair[1]);
+        }
+        return result;
     }
 
     @PutMapping("/{id}")
@@ -71,6 +109,9 @@ public class AdminProductController {
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
         product.setId(existing.getId());
         product.setCreatedAt(existing.getCreatedAt());
+        if (product.getSlug() == null) product.setSlug(existing.getSlug());
+        if (product.getStatus() == null) product.setStatus(existing.getStatus());
+        if (product.getArtistId() == null) product.setArtistId(existing.getArtistId());
         return productService.toResponse(productRepository.save(product));
     }
 
