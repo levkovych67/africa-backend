@@ -3,6 +3,33 @@ spring:
     mongodb:
       uri: ${MONGODB_URI}
 
+server:
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    connection-timeout: 20s
+    keep-alive-timeout: 30s
+
+# Override localhost defaults — require env vars in production
+monobank:
+  webhook-base-url: ${WEBHOOK_BASE_URL}
+
+frontend:
+  url: ${FRONTEND_URL}
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
 logging:
   level:
     root: WARN

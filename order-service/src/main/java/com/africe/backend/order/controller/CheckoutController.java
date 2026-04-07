@@ -3,6 +3,7 @@ package com.africe.backend.order.controller;
 import com.africe.backend.common.dto.CheckoutRequest;
 import com.africe.backend.common.dto.OrderResponse;
 import com.africe.backend.order.service.OrderService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ public class CheckoutController {
 
     @PostMapping("/checkout")
     @ResponseStatus(HttpStatus.CREATED)
+    @RateLimiter(name = "checkout")
     public OrderResponse checkout(@Valid @RequestBody CheckoutRequest request) {
         return orderService.checkout(request);
     }

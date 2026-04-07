@@ -1,5 +1,6 @@
 package com.africe.backend.order.payment;
 
+import com.africe.backend.common.dto.CreatePaymentRequest;
 import com.africe.backend.common.model.Order;
 import com.africe.backend.common.model.OrderStatus;
 import com.africe.backend.common.model.OutboxEvent;
@@ -46,7 +47,7 @@ class PaymentControllerTest {
                 .thenReturn(new MonobankClient.InvoiceResponse("inv1", "https://pay.mono/inv1"));
 
         Map<String, String> result = paymentController.createPayment(
-                Map.of("orderId", "o1", "accessToken", "tok", "redirectUrl", "/success"));
+                new CreatePaymentRequest("o1", "tok", "/success"));
 
         assertThat(result.get("paymentUrl")).isEqualTo("https://pay.mono/inv1");
     }
@@ -58,7 +59,7 @@ class PaymentControllerTest {
         when(orderRepository.findByIdAndAccessToken("o1", "tok")).thenReturn(Optional.of(order));
 
         assertThatThrownBy(() -> paymentController.createPayment(
-                Map.of("orderId", "o1", "accessToken", "tok")))
+                new CreatePaymentRequest("o1", "tok", null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("not awaiting payment");
     }

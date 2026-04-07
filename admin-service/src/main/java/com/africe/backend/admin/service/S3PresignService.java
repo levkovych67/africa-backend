@@ -46,7 +46,7 @@ public class S3PresignService {
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(15))
+                .signatureDuration(Duration.ofMinutes(10))
                 .putObjectRequest(putRequest)
                 .build();
 

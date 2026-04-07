@@ -55,6 +55,15 @@ cors:
 seed:
   enabled: ${SEED_ENABLED:false}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
 resilience4j:
   circuitbreaker:
     instances:
@@ -70,3 +79,25 @@ resilience4j:
         sliding-window-size: 10
         failure-rate-threshold: 50
         wait-duration-in-open-state: 30s
+  timelimiter:
+    instances:
+      novaPoshta:
+        timeout-duration: 10s
+      telegram:
+        timeout-duration: 10s
+      monobank:
+        timeout-duration: 15s
+  ratelimiter:
+    instances:
+      login:
+        limit-for-period: 10
+        limit-refresh-period: 1m
+        timeout-duration: 0
+      checkout:
+        limit-for-period: 20
+        limit-refresh-period: 1m
+        timeout-duration: 0
+      payment:
+        limit-for-period: 20
+        limit-refresh-period: 1m
+        timeout-duration: 0

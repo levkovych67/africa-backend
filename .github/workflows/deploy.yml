@@ -22,9 +22,9 @@ jobs:
             cd /opt/africa/africa-backend
             git config --global --add safe.directory /opt/africa/africa-backend
             git fetch origin main
-            git reset --hard origin/main
+            git pull origin main
             chmod +x gradlew
-            ./gradlew clean :app:bootJar
+            ./gradlew clean :app:bootJar || exit 1
             sudo systemctl restart africa-backend
-            sleep 3
+            sleep 5
             sudo systemctl is-active africa-backend

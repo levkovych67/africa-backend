@@ -7,6 +7,7 @@ import com.africe.backend.common.model.Product;
 import com.africe.backend.common.model.ProductStatus;
 import com.africe.backend.product.repository.ProductRepository;
 import com.africe.backend.product.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,7 +59,7 @@ public class AdminProductController {
     @PostMapping
     @AdminAudited(action = "CREATE_PRODUCT")
     @CacheEvict(value = {"products", "productBySlug", "productFilters"}, allEntries = true)
-    public ProductResponse createProduct(@RequestBody Product product) {
+    public ProductResponse createProduct(@Valid @RequestBody Product product) {
         product.setId(null);
         if (product.getStatus() == null) {
             product.setStatus(ProductStatus.DRAFT);
@@ -104,7 +105,7 @@ public class AdminProductController {
     @PutMapping("/{id}")
     @AdminAudited(action = "UPDATE_PRODUCT")
     @CacheEvict(value = {"products", "productBySlug", "productFilters"}, allEntries = true)
-    public ProductResponse updateProduct(@PathVariable String id, @RequestBody Product product) {
+    public ProductResponse updateProduct(@PathVariable String id, @Valid @RequestBody Product product) {
         Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
         product.setId(existing.getId());

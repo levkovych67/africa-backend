@@ -17,7 +17,7 @@ class JwtServiceTest {
 
     @Test
     void generateAccessToken_returnsValidToken() {
-        String token = jwtService.generateAccessToken("user123", "admin@test.com");
+        String token = jwtService.generateAccessToken("user123", "admin@test.com", "ADMIN");
 
         assertThat(token).isNotBlank();
         assertThat(jwtService.isTokenValid(token)).isTrue();
@@ -25,16 +25,23 @@ class JwtServiceTest {
 
     @Test
     void extractUserId_returnsCorrectSubject() {
-        String token = jwtService.generateAccessToken("user123", "admin@test.com");
+        String token = jwtService.generateAccessToken("user123", "admin@test.com", "ADMIN");
 
         assertThat(jwtService.extractUserId(token)).isEqualTo("user123");
     }
 
     @Test
     void extractEmail_returnsCorrectClaim() {
-        String token = jwtService.generateAccessToken("user123", "admin@test.com");
+        String token = jwtService.generateAccessToken("user123", "admin@test.com", "ADMIN");
 
         assertThat(jwtService.extractEmail(token)).isEqualTo("admin@test.com");
+    }
+
+    @Test
+    void extractRole_returnsCorrectClaim() {
+        String token = jwtService.generateAccessToken("user123", "admin@test.com", "ADMIN");
+
+        assertThat(jwtService.extractRole(token)).isEqualTo("ADMIN");
     }
 
     @Test
@@ -44,7 +51,7 @@ class JwtServiceTest {
 
     @Test
     void isTokenValid_returnsFalseForTamperedToken() {
-        String token = jwtService.generateAccessToken("user123", "admin@test.com");
+        String token = jwtService.generateAccessToken("user123", "admin@test.com", "ADMIN");
         String tampered = token.substring(0, token.length() - 5) + "XXXXX";
 
         assertThat(jwtService.isTokenValid(tampered)).isFalse();
@@ -54,7 +61,7 @@ class JwtServiceTest {
     void isTokenValid_returnsFalseForWrongSecret() {
         JwtService otherService = new JwtService(
                 "another-secret-key-that-is-at-least-32-chars!!", 3600000, 604800000);
-        String token = otherService.generateAccessToken("user123", "admin@test.com");
+        String token = otherService.generateAccessToken("user123", "admin@test.com", "ADMIN");
 
         assertThat(jwtService.isTokenValid(token)).isFalse();
     }
@@ -71,7 +78,7 @@ class JwtServiceTest {
     void expiredToken_isInvalid() {
         // Token with 0ms expiration = immediately expired
         JwtService expiredService = new JwtService(SECRET, 0, 0);
-        String token = expiredService.generateAccessToken("user123", "admin@test.com");
+        String token = expiredService.generateAccessToken("user123", "admin@test.com", "ADMIN");
 
         assertThat(jwtService.isTokenValid(token)).isFalse();
     }

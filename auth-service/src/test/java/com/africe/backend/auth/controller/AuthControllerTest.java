@@ -40,7 +40,7 @@ class AuthControllerTest {
 
         when(adminUserRepository.findByEmail("admin@test.com")).thenReturn(Optional.of(admin));
         when(passwordEncoder.matches("password123", "hashed")).thenReturn(true);
-        when(jwtService.generateAccessToken("admin1", "admin@test.com")).thenReturn("access-jwt");
+        when(jwtService.generateAccessToken("admin1", "admin@test.com", "ADMIN")).thenReturn("access-jwt");
         when(jwtService.generateRefreshToken()).thenReturn("refresh-uuid");
         when(jwtService.getRefreshTokenExpiration()).thenReturn(604800000L);
 
@@ -85,7 +85,7 @@ class AuthControllerTest {
 
         when(refreshTokenRepository.findByToken("valid-refresh")).thenReturn(Optional.of(rt));
         when(adminUserRepository.findById("admin1")).thenReturn(Optional.of(admin));
-        when(jwtService.generateAccessToken("admin1", "admin@test.com")).thenReturn("new-access");
+        when(jwtService.generateAccessToken("admin1", "admin@test.com", "ADMIN")).thenReturn("new-access");
         when(jwtService.generateRefreshToken()).thenReturn("new-refresh");
         when(jwtService.getRefreshTokenExpiration()).thenReturn(604800000L);
 

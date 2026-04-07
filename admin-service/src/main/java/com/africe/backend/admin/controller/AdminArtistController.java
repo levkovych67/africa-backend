@@ -6,6 +6,7 @@ import com.africe.backend.common.exception.ResourceNotFoundException;
 import com.africe.backend.common.model.Artist;
 import com.africe.backend.product.repository.ArtistRepository;
 import com.africe.backend.product.service.ArtistService;
+import jakarta.validation.Valid;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,7 +45,7 @@ public class AdminArtistController {
     @PostMapping
     @AdminAudited(action = "CREATE_ARTIST")
     @CacheEvict(value = {"artists", "artistBySlug", "productFilters"}, allEntries = true)
-    public ArtistResponse createArtist(@RequestBody Artist artist) {
+    public ArtistResponse createArtist(@Valid @RequestBody Artist artist) {
         artist.setId(null);
         return artistService.toResponse(artistRepository.save(artist));
     }
@@ -52,7 +53,7 @@ public class AdminArtistController {
     @PutMapping("/{id}")
     @AdminAudited(action = "UPDATE_ARTIST")
     @CacheEvict(value = {"artists", "artistBySlug", "productFilters"}, allEntries = true)
-    public ArtistResponse updateArtist(@PathVariable String id, @RequestBody Artist artist) {
+    public ArtistResponse updateArtist(@PathVariable String id, @Valid @RequestBody Artist artist) {
         Artist existing = artistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Artist", "id", id));
         artist.setId(existing.getId());

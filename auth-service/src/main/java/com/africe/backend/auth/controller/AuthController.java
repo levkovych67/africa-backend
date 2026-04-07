@@ -11,6 +11,7 @@ import com.africe.backend.common.model.RefreshToken;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @RateLimiter(name = "login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AdminUser admin = adminUserRepository.findByEmail(request.email())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
@@ -46,7 +48,7 @@ public class AuthController {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        String accessToken = jwtService.generateAccessToken(admin.getId(), admin.getEmail());
+        String accessToken = jwtService.generateAccessToken(admin.getId(), admin.getEmail(), "ADMIN");
         String refreshTokenValue = jwtService.generateRefreshToken();
 
         RefreshToken refreshToken = RefreshToken.builder()
@@ -60,6 +62,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @RateLimiter(name = "login")
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.refreshToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
@@ -75,7 +78,7 @@ public class AuthController {
         // Delete old refresh token and create new one
         refreshTokenRepository.deleteByToken(refreshToken.getToken());
 
-        String newAccessToken = jwtService.generateAccessToken(admin.getId(), admin.getEmail());
+        String newAccessToken = jwtService.generateAccessToken(admin.getId(), admin.getEmail(), "ADMIN");
         String newRefreshTokenValue = jwtService.generateRefreshToken();
 
         RefreshToken newRefreshToken = RefreshToken.builder()

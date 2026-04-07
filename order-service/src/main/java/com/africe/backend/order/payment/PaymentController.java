@@ -1,5 +1,6 @@
 package com.africe.backend.order.payment;
 
+import com.africe.backend.common.dto.CreatePaymentRequest;
 import com.africe.backend.common.exception.ResourceNotFoundException;
 import com.africe.backend.common.model.Order;
 import com.africe.backend.common.model.OrderStatus;
@@ -10,12 +11,14 @@ import com.africe.backend.order.repository.OutboxEventRepository;
 import com.africe.backend.order.service.OrderService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,14 +54,11 @@ public class PaymentController {
     }
 
     @PostMapping("/create")
-    public Map<String, String> createPayment(@RequestBody Map<String, String> request) {
-        String orderId = request.get("orderId");
-        String accessToken = request.get("accessToken");
-        String redirectUrl = request.getOrDefault("redirectUrl", "/");
-
-        if (orderId == null || accessToken == null) {
-            throw new IllegalArgumentException("orderId and accessToken are required");
-        }
+    @RateLimiter(name = "payment")
+    public Map<String, String> createPayment(@Valid @RequestBody CreatePaymentRequest request) {
+        String orderId = request.orderId();
+        String accessToken = request.accessToken();
+        String redirectUrl = request.redirectUrl() != null ? request.redirectUrl() : "/";
 
         Order order = orderRepository.findByIdAndAccessToken(orderId, accessToken)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));

@@ -26,5 +26,6 @@ public class RefreshToken {
     @Indexed
     private String adminId;
 
+    @Indexed(expireAfter = "0s")
     private Instant expiresAt;
 }
