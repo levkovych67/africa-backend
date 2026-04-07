@@ -61,6 +61,11 @@ public class OrderService {
                     throw new IllegalArgumentException("Product is not available: " + product.getTitle());
                 }
 
+                if (product.getVariants() == null || product.getVariants().isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "Product has no variants and cannot be purchased: " + product.getTitle());
+                }
+
                 ProductVariant variant = product.getVariants().stream()
                         .filter(v -> v.getSku().equals(item.sku()))
                         .findFirst()
