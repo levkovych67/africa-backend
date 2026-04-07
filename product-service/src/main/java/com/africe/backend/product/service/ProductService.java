@@ -114,6 +114,13 @@ public class ProductService {
                 .toList()
                 : List.of();
 
+        String artistName = null;
+        if (product.getArtistId() != null) {
+            artistName = artistRepository.findById(product.getArtistId())
+                    .map(Artist::getName)
+                    .orElse(null);
+        }
+
         return new ProductResponse(
                 product.getId(),
                 product.getSlug(),
@@ -124,6 +131,7 @@ public class ProductService {
                 variants,
                 product.getImages(),
                 product.getArtistId(),
+                artistName,
                 product.getStatus(),
                 product.getCreatedAt(),
                 product.getUpdatedAt()

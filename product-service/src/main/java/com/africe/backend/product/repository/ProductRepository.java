@@ -21,6 +21,8 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     Optional<Product> findBySlug(String slug);
 
+    boolean existsBySlug(String slug);
+
     Page<Product> findByStatusIn(java.util.List<ProductStatus> statuses, Pageable pageable);
 
     Page<Product> findByTitleContainingIgnoreCase(String title, Pageable pageable);

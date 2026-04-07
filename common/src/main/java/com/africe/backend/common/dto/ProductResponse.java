@@ -16,6 +16,7 @@ public record ProductResponse(
         List<ProductVariantDto> variants,
         List<String> images,
         String artistId,
+        String artistName,
         ProductStatus status,
         Instant createdAt,
         Instant updatedAt

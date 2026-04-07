@@ -5,6 +5,7 @@ import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,6 +43,22 @@ public class GlobalExceptionHandler {
                 .orElse("Validation failed");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(400, message));
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateKey(DuplicateKeyException ex) {
+        log.warn("Duplicate key: {}", ex.getMessage());
+        String message = "Ресурс з таким ідентифікатором вже існує";
+        String exMsg = ex.getMessage();
+        if (exMsg != null) {
+            if (exMsg.contains("slug")) {
+                message = "Продукт або артист з таким slug вже існує. Змініть slug або залиште порожнім для автогенерації";
+            } else if (exMsg.contains("email")) {
+                message = "Користувач з таким email вже існує";
+            }
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(409, message));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

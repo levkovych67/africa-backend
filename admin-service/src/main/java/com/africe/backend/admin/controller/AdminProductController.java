@@ -66,6 +66,8 @@ public class AdminProductController {
         }
         if (product.getSlug() == null || product.getSlug().isBlank()) {
             product.setSlug(generateSlug(product.getTitle()));
+        } else if (productRepository.existsBySlug(product.getSlug())) {
+            product.setSlug(product.getSlug() + "-" + UUID.randomUUID().toString().substring(0, 8));
         }
         return productService.toResponse(productRepository.save(product));
     }
