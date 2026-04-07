@@ -9,19 +9,20 @@ import com.africe.backend.common.dto.RefreshTokenRequest;
 import com.africe.backend.common.model.AdminUser;
 import com.africe.backend.common.model.RefreshToken;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AdminUserRepository adminUserRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -42,9 +43,13 @@ public class AuthController {
     @RateLimiter(name = "login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AdminUser admin = adminUserRepository.findByEmail(request.email())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+                .orElseThrow(() -> {
+                    log.warn("Login failed: email not found — {}", request.email());
+                    return new IllegalArgumentException("Invalid email or password");
+                });
 
         if (!passwordEncoder.matches(request.password(), admin.getPassword())) {
+            log.warn("Login failed: wrong password for {}", request.email());
             throw new IllegalArgumentException("Invalid email or password");
         }
 
@@ -58,25 +63,29 @@ public class AuthController {
                 .build();
         refreshTokenRepository.save(refreshToken);
 
+        log.info("Login successful for {}", request.email());
         return ResponseEntity.ok(new AuthResponse(accessToken, refreshTokenValue));
     }
 
     @PostMapping("/refresh")
-    @RateLimiter(name = "login")
+    @RateLimiter(name = "refresh")
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.refreshToken())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+                .orElseThrow(() -> {
+                    log.warn("Refresh failed: token not found");
+                    return new IllegalArgumentException("Invalid refresh token");
+                });
+
+        // Delete old token FIRST to prevent race condition reuse
+        refreshTokenRepository.deleteByToken(refreshToken.getToken());
 
         if (refreshToken.getExpiresAt().isBefore(Instant.now())) {
-            refreshTokenRepository.deleteByToken(refreshToken.getToken());
+            log.warn("Refresh failed: expired token for admin {}", refreshToken.getAdminId());
             throw new IllegalArgumentException("Refresh token expired");
         }
 
         AdminUser admin = adminUserRepository.findById(refreshToken.getAdminId())
                 .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
-
-        // Delete old refresh token and create new one
-        refreshTokenRepository.deleteByToken(refreshToken.getToken());
 
         String newAccessToken = jwtService.generateAccessToken(admin.getId(), admin.getEmail(), "ADMIN");
         String newRefreshTokenValue = jwtService.generateRefreshToken();
@@ -88,6 +97,20 @@ public class AuthController {
                 .build();
         refreshTokenRepository.save(newRefreshToken);
 
+        log.info("Token refreshed for admin {}", admin.getEmail());
         return ResponseEntity.ok(new AuthResponse(newAccessToken, newRefreshTokenValue));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            if (jwtService.isTokenValid(token)) {
+                String adminId = jwtService.extractUserId(token);
+                refreshTokenRepository.deleteByAdminId(adminId);
+                log.info("Logout: all refresh tokens deleted for admin {}", adminId);
+            }
+        }
+        return ResponseEntity.noContent().build();
     }
 }

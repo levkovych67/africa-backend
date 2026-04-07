@@ -93,6 +93,10 @@ resilience4j:
         limit-for-period: 10
         limit-refresh-period: 1m
         timeout-duration: 0
+      refresh:
+        limit-for-period: 5
+        limit-refresh-period: 1m
+        timeout-duration: 0
       checkout:
         limit-for-period: 20
         limit-refresh-period: 1m
