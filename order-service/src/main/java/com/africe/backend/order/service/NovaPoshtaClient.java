@@ -40,9 +40,9 @@ public class NovaPoshtaClient {
         Map<String, Object> body = Map.of(
                 "apiKey", properties.getApiKey(),
                 "modelName", "Address",
-                "calledMethod", "searchSettlements",
+                "calledMethod", "getCities",
                 "methodProperties", Map.of(
-                        "CityName", query,
+                        "FindByString", query,
                         "Limit", String.valueOf(limit)
                 )
         );
@@ -55,25 +55,22 @@ public class NovaPoshtaClient {
         try {
             JsonNode root = objectMapper.readTree(json);
             if (!root.path("success").asBoolean(false)) {
-                log.warn("Nova Poshta searchSettlements failed: {}", root.path("errors"));
+                log.warn("Nova Poshta getCities failed: {}", root.path("errors"));
                 return Collections.emptyList();
             }
 
             List<NovaCityResponse> cities = new ArrayList<>();
             JsonNode data = root.path("data");
             for (JsonNode item : data) {
-                JsonNode addresses = item.path("Addresses");
-                for (JsonNode addr : addresses) {
-                    cities.add(NovaCityResponse.builder()
-                            .ref(addr.path("DeliveryCity").asText())
-                            .name(addr.path("MainDescription").asText())
-                            .region(addr.path("Area").asText())
-                            .build());
-                }
+                cities.add(NovaCityResponse.builder()
+                        .ref(item.path("Ref").asText())
+                        .name(item.path("Description").asText())
+                        .region(item.path("AreaDescription").asText())
+                        .build());
             }
             return cities;
         } catch (Exception e) {
-            log.error("Nova Poshta searchSettlements parse error: {}", e.getMessage(), e);
+            log.error("Nova Poshta getCities parse error: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
@@ -82,54 +79,46 @@ public class NovaPoshtaClient {
     @CircuitBreaker(name = "novaPoshta", fallbackMethod = "getWarehousesFallback")
     public List<NovaWarehouseResponse> getWarehouses(String cityRef) {
         try {
-            List<NovaWarehouseResponse> warehouses = new ArrayList<>();
-            int page = 1;
+            Map<String, Object> body = Map.of(
+                    "apiKey", properties.getApiKey(),
+                    "modelName", "Address",
+                    "calledMethod", "getWarehouses",
+                    "methodProperties", Map.of(
+                            "CityRef", cityRef,
+                            "Limit", "3000"
+                    )
+            );
 
-            while (true) {
-                Map<String, Object> body = Map.of(
-                        "apiKey", properties.getApiKey(),
-                        "modelName", "Address",
-                        "calledMethod", "getWarehouses",
-                        "methodProperties", Map.of(
-                                "CityRef", cityRef,
-                                "Page", String.valueOf(page),
-                                "Limit", "150"
-                        )
-                );
+            String json = restClient.post()
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
 
-                String json = restClient.post()
-                        .body(body)
-                        .retrieve()
-                        .body(String.class);
-
-                JsonNode root = objectMapper.readTree(json);
-                if (!root.path("success").asBoolean(false)) {
-                    log.warn("Nova Poshta getWarehouses failed: {}", root.path("errors"));
-                    break;
-                }
-
-                JsonNode data = root.path("data");
-                if (!data.isArray() || data.isEmpty()) {
-                    break;
-                }
-
-                for (JsonNode item : data) {
-                    String description = item.path("Description").asText();
-                    boolean isPostbox = description.toLowerCase().contains("поштомат");
-                    warehouses.add(NovaWarehouseResponse.builder()
-                            .ref(item.path("Ref").asText())
-                            .description(description)
-                            .number(item.path("Number").asText())
-                            .shortAddress(item.path("ShortAddress").asText())
-                            .type(isPostbox ? "postbox" : "warehouse")
-                            .build());
-                }
-
-                if (data.size() < 150) {
-                    break;
-                }
-                page++;
+            JsonNode root = objectMapper.readTree(json);
+            if (!root.path("success").asBoolean(false)) {
+                log.warn("Nova Poshta getWarehouses failed: {}", root.path("errors"));
+                return Collections.emptyList();
             }
+
+            JsonNode data = root.path("data");
+            if (!data.isArray() || data.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            List<NovaWarehouseResponse> warehouses = new ArrayList<>();
+            for (JsonNode item : data) {
+                String description = item.path("Description").asText();
+                boolean isPostbox = description.toLowerCase().contains("поштомат");
+                warehouses.add(NovaWarehouseResponse.builder()
+                        .ref(item.path("Ref").asText())
+                        .description(description)
+                        .number(item.path("Number").asText())
+                        .shortAddress(item.path("ShortAddress").asText())
+                        .type(isPostbox ? "postbox" : "warehouse")
+                        .build());
+            }
+
+            log.info("Loaded {} warehouses for cityRef {}", warehouses.size(), cityRef);
 
             warehouses.sort(Comparator
                     .comparing((NovaWarehouseResponse w) -> "postbox".equals(w.getType()))

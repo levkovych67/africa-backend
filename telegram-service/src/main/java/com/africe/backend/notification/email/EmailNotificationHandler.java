@@ -161,12 +161,14 @@ public class EmailNotificationHandler {
         sb.append("<tr><td style=\"padding:32px;background-color:#FFFFFF;background-image:url('cid:zebra');background-size:cover;background-position:center;background-repeat:no-repeat;\">");
 
         // Order title + date
+        sb.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin-bottom:24px;\"><tr><td style=\"background-color:rgba(255,255,255,0.85);border-radius:12px;padding:16px 20px;\">");
         sb.append("<p style=\"font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#1C1917;margin:0 0 4px 0;letter-spacing:-0.01em;\">");
         sb.append("\u0417\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F</p>");
-        sb.append("<p style=\"font-family:'Courier New',monospace;font-size:13px;color:#78716C;margin:0 0 24px 0;\">");
+        sb.append("<p style=\"font-family:'Courier New',monospace;font-size:13px;color:#78716C;margin:0;\">");
         sb.append("#").append(esc(shortId(orderId)));
         if (!date.isEmpty()) sb.append(" &middot; ").append(date);
         sb.append("</p>");
+        sb.append("</td></tr></table>");
 
         // Status badge
         sb.append(statusBadgeHtml);
