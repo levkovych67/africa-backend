@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -16,7 +19,8 @@ public class ProductVariant {
 
     private String sku;
     private Map<String, String> attributes;
-    @Builder.Default
-    private BigDecimal priceModifier = BigDecimal.ZERO;
+    @NotNull(message = "Variant price is required")
+    @DecimalMin(value = "0.01", message = "Variant price must be greater than 0")
+    private BigDecimal price;
     private int stock;
 }

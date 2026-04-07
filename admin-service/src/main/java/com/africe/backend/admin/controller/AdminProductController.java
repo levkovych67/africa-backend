@@ -5,6 +5,7 @@ import com.africe.backend.common.dto.ProductResponse;
 import com.africe.backend.common.exception.ResourceNotFoundException;
 import com.africe.backend.common.model.Product;
 import com.africe.backend.common.model.ProductStatus;
+import com.africe.backend.common.model.ProductVariant;
 import com.africe.backend.product.repository.ProductRepository;
 import com.africe.backend.product.service.ProductService;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.UUID;
 
@@ -69,7 +71,19 @@ public class AdminProductController {
         } else if (productRepository.existsBySlug(product.getSlug())) {
             product.setSlug(product.getSlug() + "-" + UUID.randomUUID().toString().substring(0, 8));
         }
+        computeMinPrice(product);
         return productService.toResponse(productRepository.save(product));
+    }
+
+    private void computeMinPrice(Product product) {
+        if (product.getVariants() != null && !product.getVariants().isEmpty()) {
+            product.setMinPrice(product.getVariants().stream()
+                    .map(ProductVariant::getPrice)
+                    .min(BigDecimal::compareTo)
+                    .orElse(BigDecimal.ZERO));
+        } else {
+            product.setMinPrice(BigDecimal.ZERO);
+        }
     }
 
     private String generateSlug(String title) {
@@ -115,6 +129,7 @@ public class AdminProductController {
         if (product.getSlug() == null) product.setSlug(existing.getSlug());
         if (product.getStatus() == null) product.setStatus(existing.getStatus());
         if (product.getArtistId() == null) product.setArtistId(existing.getArtistId());
+        computeMinPrice(product);
         return productService.toResponse(productRepository.save(product));
     }
 

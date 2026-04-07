@@ -86,8 +86,8 @@ public class OrderService {
                 decrementedItems.add(OrderItem.builder()
                         .productId(product.getId()).sku(item.sku()).quantity(item.quantity()).build());
 
-                // Server-side price calculation (В1.2) — never trust client price
-                BigDecimal unitPrice = product.getBasePrice().add(variant.getPriceModifier());
+                // Server-side price calculation — never trust client price
+                BigDecimal unitPrice = variant.getPrice();
                 BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(item.quantity()));
                 totalAmount = totalAmount.add(lineTotal);
 

@@ -11,7 +11,7 @@ public record ProductResponse(
         String slug,
         String title,
         String description,
-        BigDecimal basePrice,
+        BigDecimal minPrice,
         List<ProductAttributeDto> attributes,
         List<ProductVariantDto> variants,
         List<String> images,

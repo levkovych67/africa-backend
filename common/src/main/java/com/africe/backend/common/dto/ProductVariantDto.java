@@ -6,6 +6,6 @@ import java.util.Map;
 public record ProductVariantDto(
         String sku,
         Map<String, String> attributes,
-        BigDecimal priceModifier,
+        BigDecimal price,
         int stock
 ) {}

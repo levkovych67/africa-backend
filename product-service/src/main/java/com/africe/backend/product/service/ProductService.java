@@ -8,6 +8,7 @@ import com.africe.backend.common.exception.ResourceNotFoundException;
 import com.africe.backend.common.model.Artist;
 import com.africe.backend.common.model.Product;
 import com.africe.backend.common.model.ProductStatus;
+import com.africe.backend.common.model.ProductVariant;
 import com.africe.backend.product.repository.ArtistRepository;
 import com.africe.backend.product.repository.ProductRepository;
 import org.bson.Document;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +106,7 @@ public class ProductService {
     public ProductResponse toResponse(Product product) {
         List<ProductVariantDto> variants = product.getVariants() != null
                 ? product.getVariants().stream()
-                .map(v -> new ProductVariantDto(v.getSku(), v.getAttributes(), v.getPriceModifier(), v.getStock()))
+                .map(v -> new ProductVariantDto(v.getSku(), v.getAttributes(), v.getPrice(), v.getStock()))
                 .toList()
                 : List.of();
 
@@ -121,12 +123,20 @@ public class ProductService {
                     .orElse(null);
         }
 
+        BigDecimal minPrice = product.getMinPrice();
+        if (minPrice == null && product.getVariants() != null && !product.getVariants().isEmpty()) {
+            minPrice = product.getVariants().stream()
+                    .map(ProductVariant::getPrice)
+                    .min(BigDecimal::compareTo)
+                    .orElse(BigDecimal.ZERO);
+        }
+
         return new ProductResponse(
                 product.getId(),
                 product.getSlug(),
                 product.getTitle(),
                 product.getDescription(),
-                product.getBasePrice(),
+                minPrice != null ? minPrice : BigDecimal.ZERO,
                 attributes,
                 variants,
                 product.getImages(),
@@ -140,8 +150,8 @@ public class ProductService {
 
     private Pageable buildPageable(String sort, int page, int size) {
         Sort sorting = switch (sort != null ? sort : "") {
-            case "price_asc", "basePrice,asc" -> Sort.by(Sort.Direction.ASC, "basePrice");
-            case "price_desc", "basePrice,desc" -> Sort.by(Sort.Direction.DESC, "basePrice");
+            case "price_asc", "minPrice,asc" -> Sort.by(Sort.Direction.ASC, "minPrice");
+            case "price_desc", "minPrice,desc" -> Sort.by(Sort.Direction.DESC, "minPrice");
             case "newest", "createdAt,desc" -> Sort.by(Sort.Direction.DESC, "createdAt");
             default -> {
                 // Support generic "field,direction" format

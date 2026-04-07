@@ -43,15 +43,15 @@ class ProductServiceTest {
                 .slug("test-tshirt")
                 .title("Test T-Shirt")
                 .description("A test product")
-                .basePrice(BigDecimal.valueOf(500))
                 .status(ProductStatus.ACTIVE)
                 .attributes(List.of(new ProductAttribute("Size", List.of("S", "M", "L"))))
                 .variants(List.of(ProductVariant.builder()
                         .sku("TSHIRT-M")
                         .attributes(Map.of("Size", "M"))
-                        .priceModifier(BigDecimal.ZERO)
+                        .price(BigDecimal.valueOf(500))
                         .stock(10)
                         .build()))
+                .minPrice(BigDecimal.valueOf(500))
                 .images(List.of("img1.jpg"))
                 .artistId("artist1")
                 .build();
@@ -118,7 +118,7 @@ class ProductServiceTest {
 
         assertThat(response.id()).isEqualTo("prod1");
         assertThat(response.title()).isEqualTo("Test T-Shirt");
-        assertThat(response.basePrice()).isEqualByComparingTo(BigDecimal.valueOf(500));
+        assertThat(response.minPrice()).isEqualByComparingTo(BigDecimal.valueOf(500));
         assertThat(response.variants()).hasSize(1);
         assertThat(response.variants().get(0).sku()).isEqualTo("TSHIRT-M");
     }
@@ -134,7 +134,7 @@ class ProductServiceTest {
     @Test
     void toResponse_handlesNullVariantsAndAttributes() {
         Product product = Product.builder()
-                .id("p1").slug("s").title("T").basePrice(BigDecimal.TEN)
+                .id("p1").slug("s").title("T")
                 .status(ProductStatus.ACTIVE)
                 .build();
 

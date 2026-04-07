@@ -42,12 +42,13 @@ class OrderServiceTest {
 
     private Product createProduct() {
         return Product.builder()
-                .id("prod1").title("T-Shirt").basePrice(BigDecimal.valueOf(500))
+                .id("prod1").title("T-Shirt")
                 .status(ProductStatus.ACTIVE)
                 .variants(List.of(ProductVariant.builder()
                         .sku("SKU-M").attributes(Map.of("Size", "M"))
-                        .priceModifier(BigDecimal.valueOf(50)).stock(10)
+                        .price(BigDecimal.valueOf(550)).stock(10)
                         .build()))
+                .minPrice(BigDecimal.valueOf(550))
                 .build();
     }
 
@@ -78,7 +79,7 @@ class OrderServiceTest {
 
         assertThat(response.status()).isEqualTo(OrderStatus.PENDING);
         assertThat(response.accessToken()).isNotBlank();
-        // Price: (500 + 50) * 2 = 1100
+        // Price: 550 * 2 = 1100
         assertThat(response.totalAmount()).isEqualByComparingTo(BigDecimal.valueOf(1100));
 
         // Verify outbox event created for Telegram
@@ -228,12 +229,13 @@ class OrderServiceTest {
     void checkout_serverSidePriceCalculation() throws Exception {
         // Verify price is calculated server-side, not from client
         Product product = Product.builder()
-                .id("p1").title("Hoodie").basePrice(BigDecimal.valueOf(1000))
+                .id("p1").title("Hoodie")
                 .status(ProductStatus.ACTIVE)
                 .variants(List.of(ProductVariant.builder()
                         .sku("H-XL").attributes(Map.of("Size", "XL"))
-                        .priceModifier(BigDecimal.valueOf(200)).stock(5)
+                        .price(BigDecimal.valueOf(1200)).stock(5)
                         .build()))
+                .minPrice(BigDecimal.valueOf(1200))
                 .build();
         when(productRepository.findById("p1")).thenReturn(Optional.of(product));
 
@@ -256,7 +258,7 @@ class OrderServiceTest {
 
         OrderResponse response = orderService.checkout(request);
 
-        // (1000 + 200) * 3 = 3600
+        // 1200 * 3 = 3600
         assertThat(response.totalAmount()).isEqualByComparingTo(BigDecimal.valueOf(3600));
         assertThat(response.items().get(0).unitPrice()).isEqualByComparingTo(BigDecimal.valueOf(1200));
     }
