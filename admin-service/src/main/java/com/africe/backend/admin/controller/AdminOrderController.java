@@ -71,7 +71,8 @@ public class AdminOrderController {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
 
         // Restore stock for orders where items haven't left the warehouse
-        if (order.getStatus() != OrderStatus.SHIPPED
+        if (order.getItems() != null
+                && order.getStatus() != OrderStatus.SHIPPED
                 && order.getStatus() != OrderStatus.DELIVERED
                 && order.getStatus() != OrderStatus.CANCELLED) {
             orderService.restoreStock(order);
