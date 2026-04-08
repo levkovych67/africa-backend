@@ -7,6 +7,8 @@ import com.africe.backend.common.model.*;
 import com.africe.backend.order.repository.OrderRepository;
 import com.africe.backend.order.repository.OutboxEventRepository;
 import com.africe.backend.product.repository.ProductRepository;
+import com.africe.backend.product.service.ProductEventService;
+import com.africe.backend.product.service.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +18,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Slf4j
@@ -31,17 +34,23 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final MongoTemplate mongoTemplate;
     private final ObjectMapper objectMapper;
+    private final ProductEventService productEventService;
+    private final ProductService productService;
 
     public OrderService(OrderRepository orderRepository,
                         OutboxEventRepository outboxEventRepository,
                         ProductRepository productRepository,
                         MongoTemplate mongoTemplate,
-                        ObjectMapper objectMapper) {
+                        ObjectMapper objectMapper,
+                        ProductEventService productEventService,
+                        ProductService productService) {
         this.orderRepository = orderRepository;
         this.outboxEventRepository = outboxEventRepository;
         this.productRepository = productRepository;
         this.mongoTemplate = mongoTemplate;
         this.objectMapper = objectMapper;
+        this.productEventService = productEventService;
+        this.productService = productService;
     }
 
     public OrderResponse checkout(CheckoutRequest request) {
@@ -139,6 +148,9 @@ public class OrderService {
             // Create outbox event for Telegram notification
             createOutboxEvent(OutboxChannel.TELEGRAM, "ORDER_CREATED", order);
 
+            // Broadcast stock changes to all connected clients via SSE
+            broadcastStockChanges(order.getItems());
+
             return toResponse(order);
 
         } catch (Exception e) {
@@ -180,6 +192,7 @@ public class OrderService {
 
         if (newStatus == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.CANCELLED) {
             restoreStock(order);
+            broadcastStockChanges(order.getItems());
         }
 
         order.setStatus(newStatus);
@@ -234,6 +247,30 @@ public class OrderService {
             outboxEventRepository.save(event);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize order for outbox event", e);
+        }
+    }
+
+    private void broadcastStockChanges(List<OrderItem> items) {
+        Set<String> notified = new HashSet<>();
+        for (OrderItem item : items) {
+            if (notified.add(item.getProductId())) {
+                try {
+                    Product product = productRepository.findById(item.getProductId()).orElse(null);
+                    if (product != null) {
+                        ProductResponse resp = productService.toResponse(product);
+                        productEventService.broadcast(new ProductUpdateEvent(
+                                ProductUpdateEvent.STOCK_CHANGED,
+                                product.getId(),
+                                product.getSlug(),
+                                resp.minPrice(),
+                                resp.variants(),
+                                resp.attributes(),
+                                product.getStatus()));
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to broadcast stock change for product {}", item.getProductId(), e);
+                }
+            }
         }
     }
 

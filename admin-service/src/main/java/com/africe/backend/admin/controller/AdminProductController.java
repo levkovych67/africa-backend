@@ -2,11 +2,13 @@ package com.africe.backend.admin.controller;
 
 import com.africe.backend.common.audit.AdminAudited;
 import com.africe.backend.common.dto.ProductResponse;
+import com.africe.backend.common.dto.ProductUpdateEvent;
 import com.africe.backend.common.exception.ResourceNotFoundException;
 import com.africe.backend.common.model.Product;
 import com.africe.backend.common.model.ProductStatus;
 import com.africe.backend.common.model.ProductVariant;
 import com.africe.backend.product.repository.ProductRepository;
+import com.africe.backend.product.service.ProductEventService;
 import com.africe.backend.product.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.text.Normalizer;
 import java.util.UUID;
 
 @RestController
@@ -26,11 +27,14 @@ public class AdminProductController {
 
     private final ProductRepository productRepository;
     private final ProductService productService;
+    private final ProductEventService productEventService;
 
     public AdminProductController(ProductRepository productRepository,
-                                  ProductService productService) {
+                                  ProductService productService,
+                                  ProductEventService productEventService) {
         this.productRepository = productRepository;
         this.productService = productService;
+        this.productEventService = productEventService;
     }
 
     @GetMapping
@@ -73,7 +77,9 @@ public class AdminProductController {
             product.setSlug(product.getSlug() + "-" + UUID.randomUUID().toString().substring(0, 8));
         }
         computeMinPrice(product);
-        return productService.toResponse(productRepository.save(product));
+        ProductResponse response = productService.toResponse(productRepository.save(product));
+        broadcastProductUpdate(ProductUpdateEvent.PRODUCT_UPDATED, response);
+        return response;
     }
 
     private void computeMinPrice(Product product) {
@@ -131,7 +137,9 @@ public class AdminProductController {
         if (product.getStatus() == null) product.setStatus(existing.getStatus());
         if (product.getArtistId() == null) product.setArtistId(existing.getArtistId());
         computeMinPrice(product);
-        return productService.toResponse(productRepository.save(product));
+        ProductResponse response = productService.toResponse(productRepository.save(product));
+        broadcastProductUpdate(ProductUpdateEvent.PRODUCT_UPDATED, response);
+        return response;
     }
 
     @DeleteMapping("/{id}")
@@ -143,5 +151,18 @@ public class AdminProductController {
             throw new ResourceNotFoundException("Product", "id", id);
         }
         productRepository.deleteById(id);
+        productEventService.broadcast(new ProductUpdateEvent(
+                ProductUpdateEvent.PRODUCT_DELETED, id, null, null, null, null, null));
+    }
+
+    private void broadcastProductUpdate(String eventType, ProductResponse response) {
+        productEventService.broadcast(new ProductUpdateEvent(
+                eventType,
+                response.id(),
+                response.slug(),
+                response.minPrice(),
+                response.variants(),
+                response.attributes(),
+                response.status()));
     }
 }
