@@ -171,6 +171,13 @@ public class OrderService {
             throw new IllegalArgumentException("Tracking number is required for SHIPPED status");
         }
 
+        // WAITING_PAYMENT orders can only move to PENDING (mark paid) or CANCELLED
+        if (order.getStatus() == OrderStatus.WAITING_PAYMENT
+                && newStatus != OrderStatus.PENDING
+                && newStatus != OrderStatus.CANCELLED) {
+            throw new IllegalArgumentException("Спочатку підтвердіть оплату або скасуйте замовлення");
+        }
+
         if (newStatus == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.CANCELLED) {
             restoreStock(order);
         }
