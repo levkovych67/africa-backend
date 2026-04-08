@@ -118,6 +118,10 @@ public class BotCallbackHandler {
             }
 
             if ("confirm".equals(action)) {
+                // If order awaits payment, mark as paid first, then confirm
+                if (order.getStatus() == OrderStatus.WAITING_PAYMENT) {
+                    orderService.updateStatus(orderId, OrderStatus.PENDING, null);
+                }
                 orderService.updateStatus(orderId, OrderStatus.CONFIRMED, null);
                 telegramClient.answerCallbackQuery(callbackId, "Order confirmed");
             } else if ("cancel".equals(action)) {
