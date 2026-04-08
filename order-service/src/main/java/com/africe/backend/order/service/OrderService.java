@@ -88,7 +88,12 @@ public class OrderService {
                 var result = mongoTemplate.updateFirst(query, update, Product.class);
 
                 if (result.getModifiedCount() == 0) {
-                    throw new InsufficientStockException(item.sku());
+                    String variantName = variant.getAttributes() != null
+                            ? String.join(" / ", variant.getAttributes().values())
+                            : item.sku();
+                    throw new InsufficientStockException(
+                            "Товар «%s» (%s) — недостатньо на складі".formatted(
+                                    product.getTitle(), variantName));
                 }
 
                 // Track for potential rollback
@@ -145,8 +150,10 @@ public class OrderService {
 
             order = orderRepository.save(order);
 
-            // Create outbox event for Telegram notification
-            createOutboxEvent(OutboxChannel.TELEGRAM, "ORDER_CREATED", order);
+            // Telegram notification only for COD orders (paid online orders get notified via payment callback)
+            if (status == OrderStatus.PENDING) {
+                createOutboxEvent(OutboxChannel.TELEGRAM, "ORDER_CREATED", order);
+            }
 
             // Broadcast stock changes to all connected clients via SSE
             broadcastStockChanges(order.getItems());

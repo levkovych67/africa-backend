@@ -1,14 +1,16 @@
 package com.africe.backend.order.payment;
 
 import com.africe.backend.common.dto.CreatePaymentRequest;
+import com.africe.backend.common.dto.ProductResponse;
+import com.africe.backend.common.dto.ProductUpdateEvent;
 import com.africe.backend.common.exception.ResourceNotFoundException;
-import com.africe.backend.common.model.Order;
-import com.africe.backend.common.model.OrderStatus;
-import com.africe.backend.common.model.OutboxChannel;
-import com.africe.backend.common.model.OutboxEvent;
+import com.africe.backend.common.model.*;
 import com.africe.backend.order.repository.OrderRepository;
 import com.africe.backend.order.repository.OutboxEventRepository;
 import com.africe.backend.order.service.OrderService;
+import com.africe.backend.product.repository.ProductRepository;
+import com.africe.backend.product.service.ProductEventService;
+import com.africe.backend.product.service.ProductService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
@@ -22,7 +24,9 @@ import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -36,6 +40,9 @@ public class PaymentController {
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
     private final MongoTemplate mongoTemplate;
+    private final ProductRepository productRepository;
+    private final ProductService productService;
+    private final ProductEventService productEventService;
 
     public PaymentController(MonobankClient monobankClient,
                              MonobankWebhookValidator webhookValidator,
@@ -43,7 +50,10 @@ public class PaymentController {
                              OutboxEventRepository outboxEventRepository,
                              OrderService orderService,
                              ObjectMapper objectMapper,
-                             MongoTemplate mongoTemplate) {
+                             MongoTemplate mongoTemplate,
+                             ProductRepository productRepository,
+                             ProductService productService,
+                             ProductEventService productEventService) {
         this.monobankClient = monobankClient;
         this.webhookValidator = webhookValidator;
         this.orderRepository = orderRepository;
@@ -51,6 +61,9 @@ public class PaymentController {
         this.orderService = orderService;
         this.objectMapper = objectMapper;
         this.mongoTemplate = mongoTemplate;
+        this.productRepository = productRepository;
+        this.productService = productService;
+        this.productEventService = productEventService;
     }
 
     @PostMapping("/create")
@@ -115,6 +128,7 @@ public class PaymentController {
                 Order claimed = atomicStatusTransition(orderId, OrderStatus.WAITING_PAYMENT, OrderStatus.CANCELLED);
                 if (claimed != null) {
                     orderService.restoreStock(claimed);
+                    broadcastStockChanges(claimed);
                     log.info("Payment failed/expired for order #{}, stock restored", orderId);
                 }
             }
@@ -124,6 +138,27 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    private void broadcastStockChanges(Order order) {
+        Set<String> notified = new HashSet<>();
+        for (OrderItem item : order.getItems()) {
+            if (notified.add(item.getProductId())) {
+                try {
+                    Product product = productRepository.findById(item.getProductId()).orElse(null);
+                    if (product != null) {
+                        ProductResponse resp = productService.toResponse(product);
+                        productEventService.broadcast(new ProductUpdateEvent(
+                                ProductUpdateEvent.STOCK_CHANGED,
+                                product.getId(), product.getSlug(),
+                                resp.minPrice(), resp.variants(), resp.attributes(),
+                                product.getStatus()));
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to broadcast stock change for product {}", item.getProductId(), e);
+                }
+            }
+        }
     }
 
     /**

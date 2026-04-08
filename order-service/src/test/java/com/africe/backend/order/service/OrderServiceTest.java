@@ -7,6 +7,8 @@ import com.africe.backend.common.model.*;
 import com.africe.backend.order.repository.OrderRepository;
 import com.africe.backend.order.repository.OutboxEventRepository;
 import com.africe.backend.product.repository.ProductRepository;
+import com.africe.backend.product.service.ProductEventService;
+import com.africe.backend.product.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,8 @@ class OrderServiceTest {
     @Mock ProductRepository productRepository;
     @Mock MongoTemplate mongoTemplate;
     @Mock ObjectMapper objectMapper;
+    @Mock ProductEventService productEventService;
+    @Mock ProductService productService;
     @InjectMocks OrderService orderService;
 
     private Product createProduct() {
@@ -101,7 +105,6 @@ class OrderServiceTest {
             o.setId("order2");
             return o;
         });
-        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         CheckoutRequest request = new CheckoutRequest(
                 "Jane", "Doe", "jane@test.com", "+380991234567",
