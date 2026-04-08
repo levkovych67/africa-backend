@@ -3,6 +3,7 @@ package com.africe.backend.product.service;
 import com.africe.backend.common.dto.ProductUpdateEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -22,7 +23,7 @@ public class ProductEventService {
     }
 
     public SseEmitter subscribe() {
-        SseEmitter emitter = new SseEmitter(0L); // no timeout — browser reconnects on disconnect
+        SseEmitter emitter = new SseEmitter(0L);
 
         emitters.add(emitter);
 
@@ -31,6 +32,20 @@ public class ProductEventService {
         emitter.onError(e -> emitters.remove(emitter));
 
         return emitter;
+    }
+
+    /**
+     * Send heartbeat every 25 seconds to keep Nginx proxy from timing out the SSE connection.
+     */
+    @Scheduled(fixedRate = 25000)
+    public void sendHeartbeat() {
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event().comment("heartbeat"));
+            } catch (IOException e) {
+                emitters.remove(emitter);
+            }
+        }
     }
 
     public void broadcast(ProductUpdateEvent event) {

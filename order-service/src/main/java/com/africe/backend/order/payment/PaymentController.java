@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,7 @@ public class PaymentController {
     private final ProductRepository productRepository;
     private final ProductService productService;
     private final ProductEventService productEventService;
+    private final CacheManager cacheManager;
 
     public PaymentController(MonobankClient monobankClient,
                              MonobankWebhookValidator webhookValidator,
@@ -53,7 +55,8 @@ public class PaymentController {
                              MongoTemplate mongoTemplate,
                              ProductRepository productRepository,
                              ProductService productService,
-                             ProductEventService productEventService) {
+                             ProductEventService productEventService,
+                             CacheManager cacheManager) {
         this.monobankClient = monobankClient;
         this.webhookValidator = webhookValidator;
         this.orderRepository = orderRepository;
@@ -64,6 +67,7 @@ public class PaymentController {
         this.productRepository = productRepository;
         this.productService = productService;
         this.productEventService = productEventService;
+        this.cacheManager = cacheManager;
     }
 
     @PostMapping("/create")
@@ -141,6 +145,13 @@ public class PaymentController {
     }
 
     private void broadcastStockChanges(Order order) {
+        var products = cacheManager.getCache("products");
+        if (products != null) products.clear();
+        var productBySlug = cacheManager.getCache("productBySlug");
+        if (productBySlug != null) productBySlug.clear();
+        var productFilters = cacheManager.getCache("productFilters");
+        if (productFilters != null) productFilters.clear();
+
         Set<String> notified = new HashSet<>();
         for (OrderItem item : order.getItems()) {
             if (notified.add(item.getProductId())) {

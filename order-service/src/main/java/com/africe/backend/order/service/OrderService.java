@@ -12,6 +12,7 @@ import com.africe.backend.product.service.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -36,6 +37,7 @@ public class OrderService {
     private final ObjectMapper objectMapper;
     private final ProductEventService productEventService;
     private final ProductService productService;
+    private final CacheManager cacheManager;
 
     public OrderService(OrderRepository orderRepository,
                         OutboxEventRepository outboxEventRepository,
@@ -43,7 +45,8 @@ public class OrderService {
                         MongoTemplate mongoTemplate,
                         ObjectMapper objectMapper,
                         ProductEventService productEventService,
-                        ProductService productService) {
+                        ProductService productService,
+                        CacheManager cacheManager) {
         this.orderRepository = orderRepository;
         this.outboxEventRepository = outboxEventRepository;
         this.productRepository = productRepository;
@@ -51,6 +54,7 @@ public class OrderService {
         this.objectMapper = objectMapper;
         this.productEventService = productEventService;
         this.productService = productService;
+        this.cacheManager = cacheManager;
     }
 
     public OrderResponse checkout(CheckoutRequest request) {
@@ -80,10 +84,11 @@ public class OrderService {
                         .findFirst()
                         .orElseThrow(() -> new ResourceNotFoundException("Variant", "sku", item.sku()));
 
-                // Atomic stock decrement — prevents negative stock at DB level
+                // Atomic stock decrement — $elemMatch ensures sku AND stock are checked on the SAME variant
                 Query query = new Query(Criteria.where("id").is(product.getId())
-                        .and("variants.sku").is(item.sku())
-                        .and("variants.stock").gte(item.quantity()));
+                        .and("variants").elemMatch(
+                                Criteria.where("sku").is(item.sku())
+                                        .and("stock").gte(item.quantity())));
                 Update update = new Update().inc("variants.$.stock", -item.quantity());
                 var result = mongoTemplate.updateFirst(query, update, Product.class);
 
@@ -257,7 +262,18 @@ public class OrderService {
         }
     }
 
+    private void evictProductCaches() {
+        var products = cacheManager.getCache("products");
+        if (products != null) products.clear();
+        var productBySlug = cacheManager.getCache("productBySlug");
+        if (productBySlug != null) productBySlug.clear();
+        var productFilters = cacheManager.getCache("productFilters");
+        if (productFilters != null) productFilters.clear();
+    }
+
     private void broadcastStockChanges(List<OrderItem> items) {
+        evictProductCaches();
+
         Set<String> notified = new HashSet<>();
         for (OrderItem item : items) {
             if (notified.add(item.getProductId())) {

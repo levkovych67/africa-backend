@@ -10,6 +10,7 @@ import com.africe.backend.product.repository.ProductRepository;
 import com.africe.backend.product.service.ProductEventService;
 import com.africe.backend.product.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.cache.CacheManager;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +43,7 @@ class OrderServiceTest {
     @Mock ObjectMapper objectMapper;
     @Mock ProductEventService productEventService;
     @Mock ProductService productService;
+    @Mock CacheManager cacheManager;
     @InjectMocks OrderService orderService;
 
     private Product createProduct() {
