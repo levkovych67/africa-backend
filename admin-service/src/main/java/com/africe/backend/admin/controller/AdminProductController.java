@@ -13,6 +13,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -134,12 +135,13 @@ public class AdminProductController {
     }
 
     @DeleteMapping("/{id}")
-    @AdminAudited(action = "ARCHIVE_PRODUCT")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminAudited(action = "DELETE_PRODUCT")
     @CacheEvict(value = {"products", "productBySlug", "productFilters"}, allEntries = true)
-    public ProductResponse archiveProduct(@PathVariable String id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
-        product.setStatus(ProductStatus.ARCHIVED);
-        return productService.toResponse(productRepository.save(product));
+    public void deleteProduct(@PathVariable String id) {
+        if (!productRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Product", "id", id);
+        }
+        productRepository.deleteById(id);
     }
 }

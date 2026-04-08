@@ -1,6 +1,7 @@
 package com.africe.backend.admin.controller;
 
 import com.africe.backend.common.audit.AdminAudited;
+import com.africe.backend.common.exception.ResourceNotFoundException;
 import com.africe.backend.common.dto.OrderResponse;
 import com.africe.backend.common.dto.UpdateOrderStatusRequest;
 import com.africe.backend.common.model.Order;
@@ -12,6 +13,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -58,5 +60,23 @@ public class AdminOrderController {
     public OrderResponse updateStatus(@PathVariable String id,
                                       @Valid @RequestBody UpdateOrderStatusRequest request) {
         return orderService.updateStatus(id, request.status(), request.trackingNumber());
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminAudited(action = "DELETE_ORDER")
+    @CacheEvict(value = {"dashboardStats"}, allEntries = true)
+    public void deleteOrder(@PathVariable String id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+
+        // Restore stock for orders where items haven't left the warehouse
+        if (order.getStatus() != OrderStatus.SHIPPED
+                && order.getStatus() != OrderStatus.DELIVERED
+                && order.getStatus() != OrderStatus.CANCELLED) {
+            orderService.restoreStock(order);
+        }
+
+        orderRepository.deleteById(id);
     }
 }
