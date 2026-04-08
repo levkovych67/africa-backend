@@ -11,6 +11,7 @@ import com.africe.backend.product.repository.ProductRepository;
 import com.africe.backend.product.service.ProductEventService;
 import com.africe.backend.product.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,13 +29,16 @@ public class AdminProductController {
     private final ProductRepository productRepository;
     private final ProductService productService;
     private final ProductEventService productEventService;
+    private final CacheManager cacheManager;
 
     public AdminProductController(ProductRepository productRepository,
                                   ProductService productService,
-                                  ProductEventService productEventService) {
+                                  ProductEventService productEventService,
+                                  CacheManager cacheManager) {
         this.productRepository = productRepository;
         this.productService = productService;
         this.productEventService = productEventService;
+        this.cacheManager = cacheManager;
     }
 
     @GetMapping
@@ -151,11 +155,22 @@ public class AdminProductController {
             throw new ResourceNotFoundException("Product", "id", id);
         }
         productRepository.deleteById(id);
+        evictProductCaches();
         productEventService.broadcast(new ProductUpdateEvent(
                 ProductUpdateEvent.PRODUCT_DELETED, id, null, null, null, null, null));
     }
 
+    private void evictProductCaches() {
+        var products = cacheManager.getCache("products");
+        if (products != null) products.clear();
+        var productBySlug = cacheManager.getCache("productBySlug");
+        if (productBySlug != null) productBySlug.clear();
+        var productFilters = cacheManager.getCache("productFilters");
+        if (productFilters != null) productFilters.clear();
+    }
+
     private void broadcastProductUpdate(String eventType, ProductResponse response) {
+        evictProductCaches();
         productEventService.broadcast(new ProductUpdateEvent(
                 eventType,
                 response.id(),
